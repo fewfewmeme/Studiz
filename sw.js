@@ -1,6 +1,6 @@
 // Service worker: кэш оболочки приложения с версией, работа офлайн после первой загрузки.
 // Список файлов и версия между маркерами генерируются командой: node tools/build-sw.mjs
-const VERSION = '52edeef6ad';
+const VERSION = 'e4d4f5043e';
 const CACHE = 'konspekty-' + VERSION;
 // BEGIN ASSETS
 const ASSETS = [
@@ -188,6 +188,8 @@ const ASSETS = [
   'js/libs.js',
   'js/main.js',
   'js/migrate.js',
+  'js/note-core.js',
+  'js/note-store.js',
   'js/parts.js',
   'js/perf.js',
   'js/plan-store.js',
@@ -227,6 +229,7 @@ const ASSETS = [
   'js/views/dupe.js',
   'js/views/files.js',
   'js/views/home.js',
+  'js/views/note.js',
   'js/views/plan.js',
   'js/views/search.js',
   'js/views/session-check.js',
@@ -240,6 +243,7 @@ const ASSETS = [
   'styles/components.css',
   'styles/fonts.css',
   'styles/motion.css',
+  'styles/note.css',
   'styles/plan.css',
   'styles/reader.css',
   'styles/receipt.css',

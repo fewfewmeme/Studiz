@@ -231,6 +231,7 @@ export async function renderReader(root, id) {
         h('button', { class: 'ibtn sm', 'aria-label': 'Мельче', onclick: () => doc.zoomBy(0.85) }, icon('minus', 18)), h('span', { class: 'zoom-pct static' }, Math.round((doc.zoomValue?.() || 1) * 100) + '%'), h('button', { class: 'ibtn sm', 'aria-label': 'Крупнее', onclick: () => doc.zoomBy(1.18) }, icon('plus', 18)), h('button', { class: 'ibtn sm', 'aria-label': 'По ширине', onclick: () => { doc.fitWidth(); closePop(); } }, icon('fit', 18))));
       if (doc.kind === 'pdf' && doc.hasTrim) rows.push(sw('Обрезать поля', doc.trimOn, async v => { await doc.setTrim(v); await switchMode(mode, true); }, 'Показывать только область с текстом'));
       if (doc.cfgState) rows.push(row('lines', 'Текст: размер, шрифт, ширина', () => setTimeout(() => openPop(anchor, comfortBody(closePop), { side: anchor.closest?.('.rail-r') ? 'left' : 'up' }), 30)));
+      if (meta.note) rows.push(row('pen', 'Править текст', () => { location.hash = `#/note/${meta.id}`; }));
       rows.push(sw('Экзамен', !!meta.exam, v => toggleExam(v), 'Время в этом файле считается и отдельно «к экзамену»'));
       rows.push(row('bookmark', 'Закладки', () => bookmarksDialog()), row('bookmark', 'Добавить закладку здесь', () => addBookmark()));
       if (unanchored.length) rows.push(row('info', `Не удалось привязать (${unanchored.length})`, () => unanchoredDialog()));

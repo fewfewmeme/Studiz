@@ -1,6 +1,6 @@
 // Builds the receipt stamp: a PINK, hand-pressed looking round stamp, divided horizontally into two halves.
 //   top half: flower + Japanese ring text;  bottom half: cat with a watering can + French ring text.
-// Outputs assets/stamp.svg (vector, ring text converted to outlines, roughness filter inside) and assets/stamp.png (600x600, what the site shows).
+// Outputs assets/stamp.svg (vector, ring text converted to outlines, roughness filter inside) and assets/stamp.png (450x450, what the site shows).
 //   npm i -D opentype.js @fontsource/noto-sans-jp playwright      (build-time only)
 //   node tools/build-stamp.mjs
 // The artwork is in tools/stamp-art.mjs (original drawing). Env: OPENTYPE, STAMP_FONT_JP, STAMP_FONT_LATIN override the paths.
@@ -49,17 +49,21 @@ const TOP = ringText('リズ・よくべんきょうしました・はなまる'
 const BOT = ringText('LIZ A BIEN APPRIS · CONFIRMÉ PAR CLAUDE', 179, 17.5, 150, true);
 // the filter: wobbly line, rough edge, uneven ink with speckles where the rubber did not press
 const filter = `<filter id="press" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
-<feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="2" seed="11" result="w1"/>
-<feDisplacementMap in="SourceGraphic" in2="w1" scale="5.5" xChannelSelector="R" yChannelSelector="G" result="d1"/>
-<feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="2" seed="4" result="w2"/>
-<feDisplacementMap in="d1" in2="w2" scale="2.4" xChannelSelector="G" yChannelSelector="B" result="d2"/>
+<feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="11" result="w1"/>
+<feDisplacementMap in="SourceGraphic" in2="w1" scale="8" xChannelSelector="R" yChannelSelector="G" result="d1"/>
+<feTurbulence type="fractalNoise" baseFrequency="0.45" numOctaves="3" seed="4" result="w2"/>
+<feDisplacementMap in="d1" in2="w2" scale="4.2" xChannelSelector="G" yChannelSelector="B" result="d2"/>
 <feTurbulence type="fractalNoise" baseFrequency="0.011 0.014" numOctaves="3" seed="23" result="dens"/>
-<feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="8" result="grain"/>
-<feComposite in="grain" in2="dens" operator="arithmetic" k1="0" k2="0.3" k3="0.7" k4="0" result="mix"/>
-<feColorMatrix in="mix" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -9 0 0 0 6.0" result="holes"/>
+<feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="8" result="grain"/>
+<feComposite in="grain" in2="dens" operator="arithmetic" k1="0" k2="0.3" k3="0.7" result="mix"/>
+<feColorMatrix in="mix" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -8 0 0 0 5.6" result="holes"/>
 <feComposite in="d2" in2="holes" operator="in" result="inked"/>
-<feColorMatrix in="dens" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 -0.8 0 1.3" result="light"/>
-<feComposite in="inked" in2="light" operator="in"/>
+<feGaussianBlur in="inked" stdDeviation="0.9" result="soft"/>
+<feGaussianBlur in="inked" stdDeviation="2.6" result="bleed"/>
+<feComponentTransfer in="bleed" result="bleedA"><feFuncA type="linear" slope="0.55"/></feComponentTransfer>
+<feMerge result="body"><feMergeNode in="bleedA"/><feMergeNode in="soft"/></feMerge>
+<feColorMatrix in="dens" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 -1.1 0 1.45" result="light"/>
+<feComposite in="body" in2="light" operator="in"/>
 </filter>`;
 const ringStroke = `fill="none" stroke="${INK}"`;
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
@@ -77,8 +81,8 @@ console.log('assets/stamp.svg', (svg.length / 1024).toFixed(1), 'KB');
 // PNG (transparent) from Chromium: what the site shows (the same pixels on every device)
 const { chromium } = require('playwright');
 const exe = process.env.CHROME || (fs.existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined);
-const b = await chromium.launch(exe ? { executablePath: exe, args: ['--no-sandbox'] } : {}); const page = await b.newPage({ viewport: { width: 600, height: 600 }, deviceScaleFactor: 1 });
-await page.setContent(`<body style="margin:0;background:transparent"><img id=s src="data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}" width=600 height=600>`);
+const b = await chromium.launch(exe ? { executablePath: exe, args: ['--no-sandbox'] } : {}); const page = await b.newPage({ viewport: { width: 450, height: 450 }, deviceScaleFactor: 1 });
+await page.setContent(`<body style="margin:0;background:transparent"><img id=s src="data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}" width=450 height=450>`);
 await page.waitForFunction(() => document.getElementById('s').complete);
 await page.screenshot({ path: path.join(root, 'assets/stamp.png'), omitBackground: true });
 await b.close();

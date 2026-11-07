@@ -14,7 +14,7 @@ export const subjectStyle = key => ({ cls: 'sj-' + key });
 export const rotFor = id => (([...String(id)].reduce((a, c) => a + c.charCodeAt(0), 0) % 7) - 3);
 
 export const TYPE_LABEL = { pdf: 'PDF', html: 'HTML', image: 'IMG' };
-export const typeBadge = f => (f.type === 'html' ? ((f.ext || 'html') === 'htm' ? 'HTML' : (f.ext || 'html').toUpperCase()) : TYPE_LABEL[f.type] || (f.ext || '').toUpperCase());
+export const typeBadge = f => (f.note ? 'ТЕКСТ' : f.type === 'html' ? ((f.ext || 'html') === 'htm' ? 'HTML' : (f.ext || 'html').toUpperCase()) : TYPE_LABEL[f.type] || (f.ext || '').toUpperCase());
 export function fileInfo(f) {
   if (f.type === 'pdf') return `${f.pages} ${plural(f.pages, 'страница', 'страницы', 'страниц')}`;
   if (f.type === 'image') return 'изображение';

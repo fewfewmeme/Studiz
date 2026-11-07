@@ -33,6 +33,7 @@ export async function renderSubject(root, subject, folderId, onChanged) {
     h('div', { class: 'hero-body' }, crumbs, h('h1', { class: 'display' }, title), h('p', { class: 'sub count' }, ''),
       h('div', { class: 'hero-actions' },
         h('button', { class: 'btn', onclick: newFolder }, icon('folder', 18), h('span', null, 'Папка')),
+        h('button', { class: 'btn', onclick: () => { location.hash = `#/note/new/${subject}/${folderId || '-'}`; } }, icon('lines', 18), h('span', null, 'Вставить текст')),
         h('button', { class: 'btn btn-primary', onclick: () => input.click() }, icon('upload', 18), h('span', null, 'Добавить файлы')))),
     subjectSticker(subject));
   root.replaceChildren(h('div', { class: 'content wide' }, hero, body, input));
@@ -78,12 +79,13 @@ export async function renderSubject(root, subject, folderId, onChanged) {
   function fileMenu(a, f) {
     menu(a, [
       { label: 'Открыть', onClick: () => { location.hash = `#/file/${f.id}`; } },
+      ...(f.note ? [{ label: 'Править текст', onClick: () => { location.hash = `#/note/${f.id}`; } }] : []),
       { label: 'Сведения', onClick: () => docDetails(f) },
       { label: 'Переименовать', onClick: () => renameFile(f) },
       { label: f.exam ? 'Снять «Экзамен»' : 'Отметить «Экзамен»', onClick: async () => { await lib.setExam(f.id, !f.exam); refresh(); } },
       { label: 'Переместить…', onClick: () => moveFile(f) },
-      ...(f.type === 'html' && !f.raw ? [{ label: 'Пересобрать', onClick: () => rebuildFile(f) }] : []),
-      { label: 'Сбросить к оригиналу', onClick: () => resetFile(f) },
+      ...(f.type === 'html' && !f.raw && !f.note ? [{ label: 'Пересобрать', onClick: () => rebuildFile(f) }] : []),
+      ...(f.note ? [] : [{ label: 'Сбросить к оригиналу', onClick: () => resetFile(f) }]),
       { label: 'Удалить', danger: true, onClick: () => removeFile(f) },
     ]);
   }

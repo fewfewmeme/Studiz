@@ -1,0 +1,37 @@
+/* ===== «Текст»: the note editor ===== */
+.note-wrap { max-width: 900px; margin: 0 auto; }
+.note-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 4px 0 10px; }
+.note-head .muted { flex: 1 0 100%; font-size: 13px; }
+.note-title { flex: 1 1 260px; }
+.note-actions { display: flex; gap: 8px; }
+.note-bar { max-width: 100%; position: sticky; top: 0; z-index: 5; background: var(--panel-solid, #fff); border: 1px solid var(--line, #ddd); border-radius: 14px; padding: 8px; display: grid; gap: 6px; margin-bottom: 10px; }
+.note-tools { display: flex; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 6px; align-items: center; scrollbar-width: none; }
+.note-tools::-webkit-scrollbar { display: none; }
+.note-tools > * { flex: 0 0 auto; }
+.note-b { min-height: 34px; padding: 0 10px; white-space: nowrap; }
+.note-b { min-width: 38px; }
+.note-sel { width: auto; min-height: 36px; padding: 0 8px; }
+.note-colors { display: flex; gap: 5px; }
+.note-sw { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .25); }
+.note-ic { display: inline-flex; gap: 4px; align-items: center; }
+.note-ctx { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 6px 10px; align-items: center; padding: 6px 8px; border-radius: 10px; background: var(--accent-soft, #eef2ff); }
+.note-ctx[hidden] { display: none; }
+.note-ctx > * { flex: 0 0 auto; white-space: nowrap; }
+.note-ctx label { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; }
+.note-ctx input[type=range] { width: 120px; }
+.note-ed { min-height: 60vh; outline: none; background: #fbfaf7; color: #1c2330; border-radius: 12px; border: 1px solid var(--line, #ddd); max-width: none; padding: 22px 24px 60px; font: 17px/1.65 "Manrope", system-ui, -apple-system, sans-serif; overflow-wrap: break-word; }
+.note-ed:empty::before { content: attr(data-ph); color: #8a93a6; }
+.note-ed h1, .note-ed h2, .note-ed h3 { font-family: "Cormorant", "Cormorant Garamond", Georgia, serif; color: #14203a; line-height: 1.2; }
+.note-ed h1 { font-size: 2.1em; margin: .2em 0 .5em; } .note-ed h2 { font-size: 1.6em; margin: 1.2em 0 .5em; } .note-ed h3 { font-size: 1.3em; margin: 1em 0 .4em; }
+.note-ed p { margin: .7em 0; } .note-ed ul, .note-ed ol { padding-left: 1.4em; }
+.note-ed table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .92em; }
+.note-ed th, .note-ed td { border: 1px solid #c9d1de; padding: 7px 9px; text-align: left; vertical-align: top; min-width: 40px; }
+.note-ed th { background: #eef2f8; }
+.note-ed blockquote { margin: 1em 0; padding: 10px 16px; border-left: 4px solid #6f8fd6; background: #eef3fc; border-radius: 0 10px 10px 0; }
+.note-ed pre, .note-ed code { font-family: ui-monospace, Menlo, monospace; font-size: .88em; } .note-ed pre { background: #f1f3f7; padding: 12px 14px; border-radius: 10px; white-space: pre-wrap; }
+.note-ed img[data-wrap] { height: auto; max-width: 100%; }
+.note-ed img[data-wrap="left"] { float: left; margin: .3em 1em .6em 0; }
+.note-ed img[data-wrap="right"] { float: right; margin: .3em 0 .6em 1em; }
+.note-ed img[data-wrap="none"] { display: block; float: none; margin: 1em auto; }
+.note-ed img.sel { outline: 3px solid #4a7bd6; outline-offset: 2px; }
+.note-ed::after { content: ""; display: block; clear: both; }

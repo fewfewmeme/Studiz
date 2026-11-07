@@ -54,6 +54,7 @@ async function renderRoute(parts, my) {
       case 'file': { const { renderReader } = await import('./reader/reader.js'); inReader = true; nav = ''; res = await renderReader(root, parts[1]); break; }
       case 'files': { const { renderFiles } = await import('./views/files.js'); res = await renderFiles(root, parts[1] || 'all'); nav = 'files'; break; }
       case 'check': res = await renderCheck(root); nav = 'check'; break;
+      case 'note': { const { renderNote } = await import('./views/note.js'); inReader = false; nav = ''; res = await renderNote(root, parts[1], parts[2], parts[3]); break; }
       case 'plan': { const { renderPlan } = await import('./views/plan.js'); res = await renderPlan(root); nav = 'plan'; break; }
       case 'days': { const { renderDays } = await import('./views/days.js'); res = await renderDays(root); nav = 'days'; break; }
       case 'archive': { const { renderArchive } = await import('./views/archive.js'); res = await renderArchive(root); nav = 'archive'; break; }

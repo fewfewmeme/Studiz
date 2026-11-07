@@ -100,7 +100,7 @@ export async function renderSettings(root) {
   const trashCard = () => card('Корзина', trashBox);
   const rebuildCard = () => card('Адаптация документов', h('p', { class: 'muted' }, 'Если сайт научился лучше адаптировать файлы, документы можно пересобрать из оригиналов. Пометки, прогресс и закладки остаются.'),
     h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: async () => {
-      const files = (await lib.liveFiles()).filter(f => f.type === 'html'); if (!files.length) { toast('Пересобирать пока нечего'); return; }
+      const files = (await lib.liveFiles()).filter(f => f.type === 'html' && !f.note); if (!files.length) { toast('Пересобирать пока нечего'); return; }
       const p = progressDialog('Адаптирую заново'); let i = 0, err = 0;
       for (const f of files) { p.update(i / files.length, `${i + 1} из ${files.length}: ${f.name}`); try { await readapt(f.id); } catch { err++; } i++; await new Promise(r => setTimeout(r, 0)); }
       p.close(); toast(err ? `Пересобрано ${files.length - err}, не получилось: ${err}` : `Пересобрано документов: ${files.length}`);

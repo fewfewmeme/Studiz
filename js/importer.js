@@ -103,7 +103,7 @@ export async function importFile(file, { subject, folderId, onProgress, hash } =
 export async function readapt(fileId, { onProgress } = {}) {
   const meta = await db.get('files', fileId), docRec = await db.get('docs', fileId);
   if (!meta || !docRec) throw new Error('Файл не найден.');
-  if (meta.raw) return false;
+  if (meta.raw || meta.note) return false;      // a note is edited in the editor, never re-converted
   const buf = await docRec.original.arrayBuffer();
   const conv = await convert(meta.srcKind || meta.type, buf, meta.name, docRec.original.type, fileId, onProgress);
   if (!conv.conv) return false;
