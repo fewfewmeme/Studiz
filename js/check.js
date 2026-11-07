@@ -2,7 +2,7 @@
 import { h } from './util.js';
 import { toast } from './ui.js';
 import { downloadBlob } from './util.js';
-import { checkPosterUrl } from './assets.js';
+import { checkPosterUrl, slotSticker } from './assets.js';
 import * as ST from './study-store.js';
 import * as RS from './receipt-store.js';
 import { buildTop, buildBottom, tearLine, stampHalf, jagged, tearPolygon, PAPER_W, STAMP_RATIO, STAMP_SRC } from './receipt-ui.js';
@@ -63,7 +63,7 @@ export async function renderCheck(root) {
   const saveBtn = h('button', { class: 'btn', type: 'button', onclick: save }, 'Сохранить картинкой');
   const stage = h('div', { class: 'rc-wrap' });
   const wrap = h('div', { class: 'content wide' },
-    h('header', { class: 'poster-panel', style: poster ? { '--poster': `url("${poster}")` } : {} }, h('p', { class: 'eyebrow' }, 'Итоги учёбы'), h('h1', { class: 'display' }, 'Чек')),
+    h('header', { class: 'poster-panel', style: poster ? { '--poster': `url("${poster}")` } : {} }, h('p', { class: 'eyebrow' }, 'Итоги учёбы'), h('h1', { class: 'display' }, 'Чек'), slotSticker('checkSticker', 'poster-sticker')),
     banner, stage, hint, h('div', { class: 'row-center' }, saveBtn));
   root.replaceChildren(wrap);
   const cleanups = [];

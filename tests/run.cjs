@@ -1,6 +1,6 @@
 // Runs the whole suite: node tests/run.cjs [name ...]   (names: annotations book blocks routing migration visual)
 const L = require('./lib.cjs');
-const all = ['note', 'core', 'routing', 'migration', 'master', 'r7', 'r7b', 'r7c', 'reg', 'r9b', 'r9c', 'r9d', 'r9e', 'r10'];
+const all = ['note', 'plan', 'core', 'routing', 'migration', 'master', 'r7', 'r7b', 'r7c', 'reg', 'r9b', 'r9c', 'r9d', 'r9e', 'r10'];
 
 (async () => {
   const wanted = process.argv.slice(2).length ? process.argv.slice(2) : all;

@@ -5,7 +5,7 @@ import { uid } from './db.js';
 
 export const K_TT = 'plan.timetable.v1', K_ITEMS = 'plan.items.v1';
 export const DAYS = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
-export const FILE_MIN_FOR_PROMPT = 30;       // minutes in the linked file before a quiet «отметить?» appears
+export const FILE_MIN_FOR_PROMPT = 15;       // minutes in the linked file before a quiet «отметить?» appears
 
 const pad = n => String(n).padStart(2, '0');
 export const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
