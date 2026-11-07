@@ -5,6 +5,7 @@ import { SUBJECTS } from '../../config.js';
 import * as db from '../db.js';
 import * as P from '../plan-store.js';
 import { toast, customDialog } from '../ui.js';
+import * as ST from '../study-store.js';
 
 const subjName = k => SUBJECTS.find(s => s.key === k)?.name || '';
 
@@ -51,7 +52,8 @@ export async function renderPlan(root) {
           h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { offset--; draw(); } }, '←'),
           h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { offset = 0; draw(); } }, 'Сегодня'),
           h('button', { class: 'btn btn-sm', type: 'button', onclick: () => { offset++; draw(); } }, '→'),
-          h('button', { class: 'btn btn-sm', type: 'button', onclick: () => timetableDialog(tt) }, 'Расписание'))),
+          h('button', { class: 'btn btn-sm', type: 'button', onclick: () => timetableDialog(tt) }, 'Расписание'),
+          h('button', { class: 'btn btn-sm', type: 'button', title: 'Минуты, которые я учила не на сайте', onclick: () => outsideDialog(tt) }, '＋ минуты вне сайта'))),
       h('div', { class: 'plan-top' }, marks, h('div', { class: 'plan-motiv' }, h('h2', null, 'Мотивация недели'), motiv)),
       h('div', { class: 'plan-body' }, ...order.map(cell), notes, cell(6))));
   }
@@ -79,6 +81,36 @@ export async function renderPlan(root) {
     const m = customDialog([h('h3', null, 'Файл к пункту'), h('p', { class: 'muted' }, it.text),
       h('div', { class: 'modal-stack' }, ...(list.length ? list : files).slice(0, 60).map(f => h('button', { class: 'btn', type: 'button', onclick: async () => { await P.updateItem(it.id, { fileId: f.id }); m.close(); draw(); } }, f.name.slice(0, 50)))),
       h('div', { class: 'modal-actions' }, it.fileId ? h('button', { class: 'btn', type: 'button', onclick: async () => { await P.updateItem(it.id, { fileId: null, fileMs: 0 }); m.close(); draw(); } }, 'Убрать файл') : null, h('button', { class: 'btn', type: 'button', onclick: () => m.close() }, 'Закрыть'))], { onBackdrop: () => m.close() });
+  }
+  // minutes studied away from the site: a small dialog, nothing on the receipt page. They join the open receipt as that subject's time.
+  function outsideDialog(tt) {
+    const todaySubj = tt[P.weekday(new Date())] || [];
+    let subj = todaySubj[0] || null, mins = 30;
+    const subjChips = SUBJECTS.map(s => {
+      const b = h('button', { class: 'chip' + (s.key === subj ? ' on' : ''), type: 'button', 'aria-pressed': String(s.key === subj) }, s.name);
+      b.dataset.key = s.key; return b;
+    });
+    const num = h('input', { class: 'input', type: 'number', inputmode: 'numeric', min: 1, max: 600, value: mins, 'aria-label': 'Минут', style: { width: '90px' } });
+    const minChips = [10, 15, 30, 45, 60, 90].map(n => { const b = h('button', { class: 'chip' + (n === mins ? ' on' : ''), type: 'button' }, n + ' мин'); b.dataset.n = n; return b; });
+    const sync = () => {
+      subjChips.forEach(b => { b.classList.toggle('on', b.dataset.key === subj); b.setAttribute('aria-pressed', String(b.dataset.key === subj)); });
+      minChips.forEach(b => b.classList.toggle('on', Number(b.dataset.n) === mins));
+    };
+    subjChips.forEach(b => b.addEventListener('click', () => { subj = b.dataset.key; sync(); }));
+    minChips.forEach(b => b.addEventListener('click', () => { mins = Number(b.dataset.n); num.value = mins; sync(); }));
+    num.addEventListener('input', () => { mins = Math.round(Number(num.value)) || 0; sync(); });
+    const m = customDialog([h('h3', null, 'Минуты вне сайта'),
+      h('p', { class: 'muted' }, 'Сколько ты училась не на сайте. Время попадёт в открытый чек как время этого предмета (не как «к экзамену»).'),
+      h('div', { class: 'chips', style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } }, ...subjChips),
+      h('div', { class: 'chips', style: { display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', marginTop: '10px' } }, ...minChips, num),
+      h('div', { class: 'modal-actions' }, h('button', { class: 'btn', type: 'button', onclick: () => m.close() }, 'Отмена'),
+        h('button', { class: 'btn btn-primary', type: 'button', onclick: async () => {
+          if (!subj) { toast('Выбери предмет', { error: true }); return; }
+          if (!(mins >= 1 && mins <= 600)) { toast('Минут: от 1 до 600', { error: true }); return; }
+          await ST.initStudy();
+          const done = ST.addManualMinutes(subj, mins); m.close();
+          if (done > 0) toast(`+${done} мин · ${subjName(subj)}`, { action: { label: 'Отменить', fn: () => { ST.addManualMinutes(subj, -done); toast('Отменено'); } }, ms: 6000 });
+        } }, 'Добавить'))], { onBackdrop: () => m.close() });
   }
   function timetableDialog(tt) {
     const cur = JSON.parse(JSON.stringify(tt));

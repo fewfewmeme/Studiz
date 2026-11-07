@@ -1,0 +1,20 @@
+import test from 'node:test'; import assert from 'node:assert/strict';
+import { rewards, makePayload, encodeReceipt, decodeReceipt, totalsFromTimer, dateRangeRu, minutesText, zigzagClip, randomId } from '../js/receipt-core.js';
+test('35 min + 2x5 + 1x10', () => { const r = rewards(35, 2, 1); assert.equal(r.fish, 11); assert.equal(r.shrimp, 4); });
+test('10 min = 2 fish + 1 shrimp', () => { const r = rewards(10, 0, 0); assert.equal(r.fish, 2); assert.equal(r.shrimp, 1); });
+test('roundtrip', () => { const p = makePayload({ id: 'abcde12345', d1: '2026-11-06', d2: '2026-11-06', ct: '2026-11-06T22:31', g: 35, b5: 2, b10: 1, s: { an: 40, fz: 15 }, ex: 30, exs: ['an'], sx: 0.5 }); assert.deepEqual(decodeReceipt(encodeReceipt(p)), p); });
+test('tamper', () => { const c = encodeReceipt(makePayload({ id: 'abcde12345', d1: '2026-11-06', d2: '2026-11-06', ct: '2026-11-06T22:31', g: 35, b5: 2, b10: 1, s: {}, ex: 0, exs: [], sx: 0.5 })); assert.throws(() => decodeReceipt(c.slice(0, -1) + (c.endsWith('0') ? '1' : '0'))); });
+test('rewards of a block do not depend on general time', () => { assert.deepEqual([rewards(0, 1, 0).fish, rewards(0, 1, 0).shrimp], [1, 0]); assert.deepEqual([rewards(0, 0, 1).fish, rewards(0, 0, 1).shrimp], [2, 1]); });
+test('4 min and 9 min give less than a full unit', () => { assert.equal(rewards(4, 0, 0).fish, 0); assert.equal(rewards(9, 0, 0).shrimp, 0); assert.equal(rewards(9, 0, 0).fish, 1); });
+test('wrong rewards in a code are rejected', () => { const p = makePayload({ id: 'abcde12345', d1: '2026-11-06', d2: '2026-11-06', ct: '2026-11-06T22:31', g: 35, b5: 2, b10: 1, s: {}, ex: 0, exs: [], sx: 0.5 }); p.f += 1; assert.throws(() => decodeReceipt(encodeReceipt(p)), /rewards/); });
+test('foreign format / garbage', () => { assert.throws(() => decodeReceipt('hello')); assert.throws(() => decodeReceipt('LIZ2.a.b')); assert.throws(() => decodeReceipt('')); });
+test('unknown subject is rejected', () => { const p = makePayload({ id: 'abcde12345', d1: '2026-11-06', d2: '2026-11-06', ct: '2026-11-06T22:31', g: 5, b5: 0, b10: 0, s: { xx: 5 }, ex: 0, exs: [], sx: 0.5 }); assert.throws(() => decodeReceipt(encodeReceipt(p)), /subject/); });
+test('cyrillic and spaces in the code are tolerated around the edges', () => { const p = makePayload({ id: 'abcde12345', d1: '2026-11-06', d2: '2026-11-06', ct: '2026-11-06T22:31', g: 5, b5: 0, b10: 0, s: { an: 5 }, ex: 0, exs: [], sx: 0.3 }); assert.deepEqual(decodeReceipt('  ' + encodeReceipt(p) + '\n'), p); });
+test('totalsFromTimer: general + blocks per subject, exam, rewards', () => {
+  const t = totalsFromTimer({ accMs: 35 * 60000 + 59000, bySubjMs: { an: 25 * 60000, fz: 10 * 60000 + 59000 }, examMs: 10 * 60000, done: { b5: 2, b10: 1 }, blockBySubjMs: { an: 20 * 60000 }, blockExamMs: 10 * 60000 });
+  assert.equal(t.g, 35); assert.equal(t.s.an, 45); assert.equal(t.s.fz, 11); assert.equal(t.ex, 20); assert.equal(t.rewards.fish, 11); assert.equal(t.rewards.shrimp, 4); assert.equal(t.totalMin, 35 + 20);
+});
+test('dateRangeRu', () => { assert.equal(dateRangeRu('2026-11-06', '2026-11-06'), '6 ноября 2026 г.'); assert.equal(dateRangeRu('2026-11-06', '2026-11-07'), '6–7 ноября 2026 г.'); assert.equal(dateRangeRu('2026-10-31', '2026-11-02'), '31 октября – 2 ноября 2026 г.'); });
+test('minutesText', () => { assert.equal(minutesText(210), '3 ч 30 мин'); assert.equal(minutesText(45), '45 мин'); assert.equal(minutesText(60), '1 ч'); assert.equal(minutesText(0), '0 мин'); });
+test('zigzagClip has 2 points per tooth + 3', () => { const c = zigzagClip(10, 8); assert.equal((c.match(/,/g) || []).length + 1, 3 + 20); assert.ok(c.startsWith('polygon(0% 0%,100% 0%')); });
+test('randomId is 10 chars of [a-z0-9]', () => { assert.match(randomId(), /^[a-z0-9]{10}$/); });

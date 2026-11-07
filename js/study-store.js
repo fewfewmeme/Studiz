@@ -85,6 +85,13 @@ export function setExam(flag) { T.setExam(S, flag, now()); persist(); emit('chan
 export function startBlock(lenMin) {
   T.startBlock(S, lenMin, now()); persist(); ensureTick(); emit('change');
 }
+// minutes studied outside the site (План): they go to the open receipt as that subject's general time. Returns the applied minutes (negative = undo).
+export function addManualMinutes(subjectKey, minutes) {
+  const code = codeOf(subjectKey); if (!code) return 0;
+  const d = T.addManual(S, code, Math.round(minutes) * 60000, now());
+  if (d) { persist(); emit('change'); }
+  return Math.round(d / 60000);
+}
 export function stopBlock() { if (!S.block) return; T.abandonBlock(S); persist(); emit('blockAbandoned', 'stopped'); emit('change'); }
 export const elapsedMs = () => T.elapsedMs(S, now());
 export const blockLeftMs = () => T.blockRemainingMs(S, now());

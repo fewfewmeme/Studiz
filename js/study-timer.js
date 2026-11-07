@@ -84,6 +84,19 @@ export function show(S, t) {
   return 'none';
 }
 
+// minutes studied away from the site: counted as general time of that subject on the open receipt (never as exam minutes).
+// `ms` may be negative (undo); the totals never go below zero. Returns the ms really applied.
+export const MANUAL_MAX_MIN = 600;
+export function addManual(S, subj, ms, t) {
+  if (!subj || !Number.isFinite(ms) || ms === 0) return 0;
+  flush(S, t);
+  const cur = S.bySubjMs[subj] || 0, d = ms > 0 ? Math.min(ms, MANUAL_MAX_MIN * 60000) : -Math.min(-ms, cur, S.accMs);
+  if (!d) return 0;
+  S.accMs += d; S.bySubjMs[subj] = cur + d;
+  if (S.dayStart == null) { S.dayStart = t; S.rid = S.rid || randomId(); }
+  return d;
+}
+
 // ---- blocks ----
 export function startBlock(S, lenMin, t) {
   if (lenMin !== 5 && lenMin !== 10) throw new Error('block length must be 5 or 10');

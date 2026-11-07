@@ -125,6 +125,7 @@ export async function renderReader(root, id) {
       else { const mod = await import('./pdfdoc.js'); doc = new mod.PdfDoc(ctx); }
       await doc.load();
       if (doc.views?.includes('orig')) { modeBtns[0].hidden = false; }
+      if (doc.noBlocks) modeBtns.find(b => b.dataset.mode === 'blocks').hidden = true;
       modes.style.setProperty('--n', modeBtns.filter(b => !b.hidden).length);
     } catch (e) {
       stage.replaceChildren(h('div', { class: 'empty-card err-state' }, h('h3', null, 'Не удалось открыть файл'), h('p', null, e.message || String(e)), h('div', { class: 'actions' }, h('a', { class: 'btn btn-primary', href: backHref }, 'Назад к файлам'), h('button', { class: 'btn', onclick: () => window.__copyCrash?.(e) }, 'Скопировать отчёт об ошибке'))));
@@ -585,7 +586,8 @@ export async function renderReader(root, id) {
     paintChip();
 
     layout();
-    const first = doc.views ? (doc.views.includes(meta.lastMode) ? meta.lastMode : doc.defaultView) : (meta.lastMode === 'parts' ? 'normal' : (meta.lastMode === 'blocks' || meta.lastMode === 'book' ? meta.lastMode : 'normal'));
+    const first0 = doc.views ? (doc.views.includes(meta.lastMode) ? meta.lastMode : doc.defaultView) : (meta.lastMode === 'parts' ? 'normal' : (meta.lastMode === 'blocks' || meta.lastMode === 'book' ? meta.lastMode : 'normal'));
+    const first = doc.noBlocks && first0 === 'blocks' ? 'normal' : first0;
     await switchMode(first, true);
 
     const flushAll = () => { store.flush(); doc.blocks?.flushNow?.(); doc.flushNow?.(); };

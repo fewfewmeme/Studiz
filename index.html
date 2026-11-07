@@ -50,24 +50,6 @@
 <body>
   <div id="app" aria-live="polite"></div>
   <noscript><p style="padding:24px;font-family:sans-serif">Для работы приложения нужен JavaScript.</p></noscript>
-  <script>
-    // Safety net: if the app has drawn nothing after 15 s (e.g. a stale cache in the browser), offer a one-tap reset. Never touches the library data (IndexedDB).
-    setTimeout(function () {
-      var a = document.getElementById('app');
-      if (a && !a.children.length && !a.textContent.trim()) {
-        var box = document.createElement('div');
-        box.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:#eef2f6;font-family:-apple-system,system-ui,sans-serif;z-index:2147483647';
-        box.innerHTML = '<div style="max-width:340px;text-align:center;color:#1b2a3a"><p style="font-size:18px;margin:0 0 8px">Страница не загрузилась</p><p style="font-size:14px;margin:0 0 18px;opacity:.75">Нажмите кнопку: сбросится только временный кэш, ваши конспекты не пострадают.</p><button id="reset-cache" style="font-size:16px;padding:12px 20px;border:0;border-radius:12px;background:#14233a;color:#fff">Сбросить кэш и перезагрузить</button></div>';
-        document.body.appendChild(box);
-        document.getElementById('reset-cache').onclick = function () {
-          var jobs = [];
-          try { if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); })); } catch (e) {}
-          try { if (window.caches) jobs.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); })); } catch (e) {}
-          Promise.all(jobs).then(function () { location.reload(); }, function () { location.reload(); });
-        };
-      }
-    }, 15000);
-  </script>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

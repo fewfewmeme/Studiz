@@ -1,0 +1,20 @@
+{
+  "name": "biblioteka-konspektov",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Библиотека конспектов — статический сайт без сборки. package.json нужен только для тестов.",
+  "scripts": {
+    "build": "node tools/build-sw.mjs",
+    "serve": "node tools/serve.cjs",
+    "fixtures": "node tests/gen-fixtures.cjs",
+    "test:unit": "node tests/parts.test.mjs",
+    "test": "node tests/parts.test.mjs && node tests/run.cjs",
+    "assets": "node tools/build-assets.mjs"
+  },
+  "devDependencies": {
+    "@fontsource/noto-sans-jp": "^5.3.1",
+    "opentype.js": "^2.0.0",
+    "playwright": "^1.50.0"
+  }
+}

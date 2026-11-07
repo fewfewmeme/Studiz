@@ -1,6 +1,6 @@
 // Service worker: кэш оболочки приложения с версией, работа офлайн после первой загрузки.
 // Список файлов и версия между маркерами генерируются командой: node tools/build-sw.mjs
-const VERSION = '93f7963929';
+const VERSION = '52edeef6ad';
 const CACHE = 'konspekty-' + VERSION;
 // BEGIN ASSETS
 const ASSETS = [
@@ -86,6 +86,7 @@ const ASSETS = [
   'assets/posters/constellation.webp',
   'assets/posters/jellyfish-full.webp',
   'assets/posters/jellyfish.webp',
+  'assets/stamp.png',
   'assets/stamp.svg',
   'assets/stickers/cat-cheeks.webp',
   'assets/stickers/cat-cheeks@2x.webp',

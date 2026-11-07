@@ -160,6 +160,7 @@ export class PdfDoc {
   constructor(ctx) {
     this.ctx = ctx; this.meta = ctx.meta; this.kind = ctx.meta.type; this.stage = ctx.stage; this.store = ctx.store; this.tools = ctx.tools;
     this.ratios = {}; this.views = []; this.cleanups = []; this.photoUrls = new Map(); this.zoom = 1; this.mode = null; this.bitmaps = new Map();
+    this.noBlocks = true;   // the legacy block engine (blocks.js) has its own timer: «Блоки» is offered only for converted files (framedoc), which use the one study timer
     this.crop = null; this.boundsRec = null; this.trimOn = false; this._wanted = new Set(); this._q = Promise.resolve();
   }
   caps() { return { draw: true, text: true, photo: true, select: this.kind === 'pdf', zoom: true, trim: this.kind === 'pdf' && !!this.hasTrim }; }

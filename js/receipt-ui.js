@@ -6,7 +6,7 @@ import { SUBJECTS, SUBJECT_NAME, dateRangeRu, minutesText, rewards } from './rec
 export const PAPER_W = 326;        // px, see receipt-format.md
 export const STAMP_RATIO = 0.46;   // stamp diameter / paper width
 export const TOOTH_W = 12, TOOTH_D = 8;
-export const STAMP_SRC = 'assets/stamp.svg';
+export const STAMP_SRC = 'assets/stamp.png';
 
 const row = (left, right, cls = '') => h('div', { class: 'rc-row ' + cls }, h('span', { class: 'rc-l' }, left), h('span', { class: 'rc-r' }, right));
 const sep = () => h('div', { class: 'rc-sep' });
