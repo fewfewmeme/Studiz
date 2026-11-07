@@ -1,0 +1,35 @@
+SAMPLE RECEIPT CODE  (test receipt: g=35, b5=2, b10=1, s={an:40,fz:15}, ex=30, exs=["an"], sx=0.5)
+
+LIZ1.eyJ2IjoxLCJpZCI6ImszeDlxMm03YWIiLCJkMSI6IjIwMjYtMTEtMDYiLCJkMiI6IjIwMjYtMTEtMDciLCJjdCI6IjIwMjYtMTEtMDdUMjI6MzEiLCJnIjozNSwiYjUiOjIsImIxMCI6MSwicyI6eyJhbiI6NDAsImZ6IjoxNX0sImV4IjozMCwiZXhzIjpbImFuIl0sImYiOjExLCJzaCI6NCwic3giOjAuNX0.5acc4c2a
+
+DECODED (decodeReceipt):
+{
+  "v": 1,
+  "id": "k3x9q2m7ab",
+  "d1": "2026-11-06",
+  "d2": "2026-11-07",
+  "ct": "2026-11-07T22:31",
+  "g": 35,
+  "b5": 2,
+  "b10": 1,
+  "s": {
+    "an": 40,
+    "fz": 15
+  },
+  "ex": 30,
+  "exs": [
+    "an"
+  ],
+  "f": 11,
+  "sh": 4,
+  "sx": 0.5
+}
+
+CHECK OF THE RULES (1 fish per full 5 min, 1 shrimp per full 10 min, 5-min block = 1 fish, 10-min block = 2 fish + 1 shrimp)
+  general 35 min : floor(35/5)=7 fish, floor(35/10)=3 shrimp
+  2 x 5-min blocks: 2 fish
+  1 x 10-min block: 2 fish + 1 shrimp
+  total          : 7+2+2 = 11 fish, 3+0+1 = 4 shrimp   -> f=11, sh=4  (matches the payload)
+  printed ИТОГО  : 55 мин  (35 + 2*5 + 1*10)
+
+Rendered top part: sample-top.png (receipt-render.html, iPad landscape 1180x820 @2x, Chromium).
