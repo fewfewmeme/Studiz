@@ -1,0 +1,55 @@
+/* ===== Round 10: the paper receipt (top part / tear line / bottom stub / stamp). Numbers: see receipt-format.md ===== */
+.rc-wrap { display: flex; gap: var(--s5); align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+.rc { position: relative; width: 326px; max-width: 100%; flex: none; font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace; font-size: 14px; line-height: 20px; color: #1b1b1b; touch-action: pan-y; }
+.rc-paper { position: relative; overflow: hidden; background: #fffefb; padding: 18px 20px 12px; }
+.rc-top { border-radius: 6px 6px 0 0; padding-bottom: 0; }
+.rc-bottom { padding-top: 14px; padding-bottom: 22px; }
+.rc-title { font-weight: 800; text-align: center; letter-spacing: .02em; }
+.rc-date { text-align: center; }
+.rc-bottom .rc-date { margin-bottom: 4px; }
+.rc-h { font-weight: 800; margin-top: 2px; }
+.rc-row { display: flex; justify-content: space-between; gap: 10px; }
+.rc-row .rc-l { min-width: 0; } .rc-row .rc-r { white-space: nowrap; text-align: right; }
+.rc-sub { text-align: right; color: #55504a; min-height: 20px; }
+.rc-muted { color: #6b665f; font-size: 12.5px; line-height: 18px; }
+.rc-bold { font-weight: 800; }
+.rc-exam { margin-top: 2px; }
+.rc-foot { text-align: center; margin: 8px 0 16px; font-size: 12.5px; color: #55504a; }
+/* ordinary separator: thin dotted */
+.rc-sep { border-top: 1px dotted #1b1b1b; margin: 8px 0; height: 0; }
+/* the tear line is a different thing: thick, long dashes (10 / 6), a pair of scissors at its left end */
+.rc-tear { position: relative; height: 2px; margin: 0; background: repeating-linear-gradient(90deg, #1b1b1b 0 10px, transparent 10px 16px); }
+.rc-scissors { position: absolute; left: 4px; top: -11px; font-size: 15px; line-height: 20px; background: #fffefb; padding: 0 3px; }
+.rc-pieces { position: relative; filter: none; }
+.rc-piece { position: relative; }
+.rc-piece.top { z-index: 2; box-shadow: none; }
+.rc-piece.bottom { z-index: 1; margin-top: 0; }
+.rc-shadow-top, .rc-shadow-bottom { position: absolute; left: 0; right: 0; pointer-events: none; }
+.rc-sheet { position: relative; box-shadow: 0 2px 0 rgba(0, 0, 0, .06), 0 16px 30px -20px rgba(0, 0, 0, .4); border-radius: 6px 6px 0 0; }
+.rc-stamp-img { position: absolute; z-index: 3; pointer-events: none; user-select: none; -webkit-user-select: none; }
+.rc-tear-hit { position: absolute; left: 0; right: 0; height: 44px; margin-top: -22px; z-index: 6; touch-action: none; cursor: ew-resize; }
+.rc-tear-hit[hidden] { display: none; }
+.rc-hint { text-align: center; color: var(--ink2); font-size: var(--fs-s, 13px); margin: var(--s2) 0; min-height: 1.4em; }
+/* stamp: rests beside the receipt, dragged by a finger */
+.rc-tray { width: 150px; display: flex; flex-direction: column; align-items: center; gap: var(--s2); }
+.rc-tray .slot { width: 150px; height: 150px; border-radius: 50%; border: 2px dashed var(--line); display: grid; place-items: center; touch-action: none; }
+.stamp-drag { position: relative; width: 150px; height: 150px; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; z-index: 20; }
+.stamp-drag img { width: 100%; height: 100%; display: block; pointer-events: none; -webkit-user-drag: none; }
+.stamp-drag.dragging { position: fixed; z-index: 4000; cursor: grabbing; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, .25)); }
+.rc-banner { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); align-items: center; padding: var(--s3) var(--s4); border-radius: var(--r-m); background: var(--panel-solid); border: 1px solid var(--line); margin-bottom: var(--s3); }
+.rc-banner[hidden] { display: none; }
+/* Days / Archive */
+.rc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(326px, 1fr)); gap: var(--s5); justify-items: center; align-items: start; }
+.rc-item { display: flex; flex-direction: column; gap: var(--s2); align-items: center; width: 326px; max-width: 100%; }
+.rc-item .actions { display: flex; flex-wrap: wrap; gap: var(--s2); justify-content: center; }
+.rc-moved { opacity: .65; }
+/* the timer chip in the reader */
+.timer-chip.gen { flex-direction: column; gap: 0; }
+.timer-chip.gen .chip-text { font-size: 11px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.timer-chip.paused { opacity: .55; }
+.timer-chip.paused .chip-clock { color: var(--ink2); }
+.timer-hint { position: absolute; z-index: 40; left: 50%; bottom: calc(60px + var(--safe-b, 0px)); transform: translateX(-50%); padding: 10px 16px; border-radius: 16px; background: var(--panel-solid); color: var(--ink); box-shadow: var(--shadow); font-weight: 600; font-size: 14px; max-width: calc(100% - 32px); text-align: center; }
+.timer-hint[hidden] { display: none; }
+.exam-badge { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .02em; vertical-align: middle; }
+.timer-chip.gen .chip-ring { display: none; }
+.rail .exam-btn.on, .exam-btn.on { color: var(--accent-ink); background: var(--seg-bg); }

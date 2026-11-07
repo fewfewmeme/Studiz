@@ -1,0 +1,21 @@
+/* Theme «Сирень»: cool lilac. */
+[data-theme="lilac"] {
+  color-scheme: light;
+  --bg: #f2f0f8;
+  --bg-grad: radial-gradient(70% 55% at 8% 0%, #e8e4f4, transparent 70%), linear-gradient(180deg, #f4f2fa, #ece9f5);
+  --veil: rgba(242, 240, 248, .86);
+  --panel: rgba(255, 255, 255, .74); --panel-solid: #ffffff; --panel-2: #f8f7fc;
+  --line: rgba(35, 25, 70, .09); --line-2: rgba(35, 25, 70, .16);
+  --ink: #1f1a3c; --ink2: #5a5380; --ink3: #9690b4;
+  --accent: #6e58b4; --accent-2: #9783cf; --accent-soft: rgba(110, 88, 180, .11); --accent-ink: #55419a;
+  --ice: #b3abd0; --steel: #6d6aa8; --teal: #4d77b8; --cyan: #6cc0f0;
+  --navy: #1b1745; --navy-2: #2a2368;
+  --btn-bg: #1f1a3c; --btn-ink: #fff; --btn-shadow: 0 1px 2px rgba(31, 26, 60, .22), 0 8px 18px -12px rgba(31, 26, 60, .5);
+  --danger: #b4233f; --danger-soft: rgba(180, 35, 63, .09); --ok: #1f7a63;
+  --glass: rgba(255, 255, 255, .74); --glass-edge: rgba(35, 25, 70, .10); --glass-hi: rgba(255, 255, 255, .85);
+  --shadow: 0 1px 2px rgba(35, 25, 70, .05), 0 14px 34px -22px rgba(35, 25, 70, .28);
+  --shadow-pop: 0 2px 6px rgba(35, 25, 70, .08), 0 18px 40px -14px rgba(35, 25, 70, .34);
+  --desk: #e4e0f0; --desk-tex: .08;
+  --seg-bg: rgba(35, 25, 70, .06); --scrim: rgba(27, 23, 69, .32);
+  --fog: 255, 255, 255;
+}

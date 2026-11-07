@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="cyan">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>Библиотека конспектов</title>
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Личная библиотека конспектов">
+  <meta name="theme-color" content="#eef2f6">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Конспекты">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Конспекты">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="apple-touch-startup-image" href="icons/icon-512.png">
+  <!-- first paint: the right background colour before any CSS file arrives (no white flash) -->
+  <style>
+    html{background:#eef2f6}
+    html[data-theme=deep]{background:#00172f}
+    html[data-theme=ice]{background:#f1f4f7}
+    html[data-theme=sky]{background:#eaf3fb}
+    html[data-theme=lilac]{background:#f2f0f8}
+    html[data-theme=rose]{background:#f7eff2}
+    body{margin:0;background:inherit}
+  </style>
+  <script>
+    try { var t = localStorage.getItem('theme'); if (t === 'night') t = 'deep'; if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+  </script>
+  <link rel="preload" href="assets/fonts/manrope-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/manrope-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles/fonts.css">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/themes/cyan.css">
+  <link rel="stylesheet" href="styles/themes/deep.css">
+  <link rel="stylesheet" href="styles/themes/ice.css">
+  <link rel="stylesheet" href="styles/themes/sky.css">
+  <link rel="stylesheet" href="styles/themes/lilac.css">
+  <link rel="stylesheet" href="styles/themes/rose.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/reader.css">
+  <link rel="stylesheet" href="styles/motion.css">
+  <link rel="stylesheet" href="styles/receipt.css">
+  <link rel="stylesheet" href="styles/plan.css">
+</head>
+<body>
+  <div id="app" aria-live="polite"></div>
+  <noscript><p style="padding:24px;font-family:sans-serif">Для работы приложения нужен JavaScript.</p></noscript>
+  <script>
+    // Safety net: if the app has drawn nothing after 15 s (e.g. a stale cache in the browser), offer a one-tap reset. Never touches the library data (IndexedDB).
+    setTimeout(function () {
+      var a = document.getElementById('app');
+      if (a && !a.children.length && !a.textContent.trim()) {
+        var box = document.createElement('div');
+        box.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:#eef2f6;font-family:-apple-system,system-ui,sans-serif;z-index:2147483647';
+        box.innerHTML = '<div style="max-width:340px;text-align:center;color:#1b2a3a"><p style="font-size:18px;margin:0 0 8px">Страница не загрузилась</p><p style="font-size:14px;margin:0 0 18px;opacity:.75">Нажмите кнопку: сбросится только временный кэш, ваши конспекты не пострадают.</p><button id="reset-cache" style="font-size:16px;padding:12px 20px;border:0;border-radius:12px;background:#14233a;color:#fff">Сбросить кэш и перезагрузить</button></div>';
+        document.body.appendChild(box);
+        document.getElementById('reset-cache').onclick = function () {
+          var jobs = [];
+          try { if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); })); } catch (e) {}
+          try { if (window.caches) jobs.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); })); } catch (e) {}
+          Promise.all(jobs).then(function () { location.reload(); }, function () { location.reload(); });
+        };
+      }
+    }, 15000);
+  </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

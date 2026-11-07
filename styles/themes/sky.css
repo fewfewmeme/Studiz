@@ -1,0 +1,21 @@
+/* Theme «Небо»: clear sky blue. */
+[data-theme="sky"] {
+  color-scheme: light;
+  --bg: #eaf3fb;
+  --bg-grad: radial-gradient(70% 55% at 8% 0%, #dcecfa, transparent 70%), linear-gradient(180deg, #edf5fc, #e3eff9);
+  --veil: rgba(234, 243, 251, .86);
+  --panel: rgba(255, 255, 255, .74); --panel-solid: #ffffff; --panel-2: #f4f9fd;
+  --line: rgba(10, 45, 85, .09); --line-2: rgba(10, 45, 85, .16);
+  --ink: #0b2a4a; --ink2: #3f5f82; --ink3: #84a0bd;
+  --accent: #2f78b7; --accent-2: #62a2d6; --accent-soft: rgba(47, 120, 183, .11); --accent-ink: #225f95;
+  --ice: #9fc3de; --steel: #3f7aa8; --teal: #1a86ae; --cyan: #51c8fa;
+  --navy: #07305a; --navy-2: #0d4a82;
+  --btn-bg: #0b2a4a; --btn-ink: #fff; --btn-shadow: 0 1px 2px rgba(10, 42, 74, .22), 0 8px 18px -12px rgba(10, 42, 74, .5);
+  --danger: #b4233f; --danger-soft: rgba(180, 35, 63, .09); --ok: #1f7a63;
+  --glass: rgba(255, 255, 255, .74); --glass-edge: rgba(10, 45, 85, .10); --glass-hi: rgba(255, 255, 255, .85);
+  --shadow: 0 1px 2px rgba(10, 45, 85, .05), 0 14px 34px -22px rgba(10, 45, 85, .28);
+  --shadow-pop: 0 2px 6px rgba(10, 45, 85, .08), 0 18px 40px -14px rgba(10, 45, 85, .34);
+  --desk: #d9e8f5; --desk-tex: .08;
+  --seg-bg: rgba(10, 45, 85, .06); --scrim: rgba(7, 48, 90, .32);
+  --fog: 255, 255, 255;
+}

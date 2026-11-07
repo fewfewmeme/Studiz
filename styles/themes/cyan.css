@@ -1,0 +1,21 @@
+/* Theme «Цианотипия» (default, light): pale blue-grey, deep-navy hero cards, cobalt accent. */
+:root, [data-theme="cyan"] {
+  color-scheme: light;
+  --bg: #eef2f6;
+  --bg-grad: radial-gradient(70% 55% at 8% 0%, #e2eaf3, transparent 70%), radial-gradient(60% 50% at 100% 100%, #dfe9f1, transparent 70%), linear-gradient(180deg, #f0f4f8, #e9eef4);
+  --veil: rgba(238, 242, 246, .86);
+  --panel: rgba(255, 255, 255, .72); --panel-solid: #ffffff; --panel-2: #f6f8fb;
+  --line: rgba(15, 31, 56, .09); --line-2: rgba(15, 31, 56, .16);
+  --ink: #0f1f38; --ink2: #46597a; --ink3: #8497b3;
+  --accent: #3b5ba9; --accent-2: #5e79b7; --accent-soft: rgba(59, 91, 169, .10); --accent-ink: #2f4a8f;
+  --ice: #9cb2c1; --steel: #467298; --teal: #1f7ba1; --cyan: #51c8fa;
+  --navy: #00172f; --navy-2: #002441;
+  --btn-bg: #0f1f38; --btn-ink: #ffffff; --btn-shadow: 0 1px 2px rgba(0, 23, 47, .22), 0 8px 18px -12px rgba(0, 23, 47, .55);
+  --danger: #b4233f; --danger-soft: rgba(180, 35, 63, .09); --ok: #1f7a63;
+  --glass: rgba(255, 255, 255, .72); --glass-edge: rgba(15, 31, 56, .10); --glass-hi: rgba(255, 255, 255, .85);
+  --shadow: 0 1px 2px rgba(15, 31, 56, .05), 0 14px 34px -22px rgba(15, 31, 56, .30);
+  --shadow-pop: 0 2px 6px rgba(15, 31, 56, .08), 0 18px 40px -14px rgba(15, 31, 56, .36);
+  --desk: #dde5ee; --desk-tex: .10;
+  --seg-bg: rgba(15, 31, 56, .06); --scrim: rgba(0, 23, 47, .34);
+  --fog: 255, 255, 255;
+}

@@ -1,0 +1,161 @@
+{
+  "version": 2,
+  "note": "Slots: replace a value with a path to your own file. A missing file falls back to a quiet duotone gradient.",
+  "stickers": {
+    "cat-hehe": "assets/stickers/cat-hehe.webp",
+    "cat-cheeks": "assets/stickers/cat-cheeks.webp",
+    "cat-sleepy": "assets/stickers/cat-sleepy.webp",
+    "cat-limit": "assets/stickers/cat-limit.webp",
+    "cat-tongue": "assets/stickers/cat-tongue.webp",
+    "cat-lying": "assets/stickers/cat-lying.webp",
+    "cat-outline": "assets/stickers/cat-outline.webp",
+    "cat-scribble": "assets/stickers/cat-scribble.webp",
+    "chrome-star": "assets/stickers/chrome-star.webp",
+    "chibi-ink": "assets/stickers/chibi-ink.webp",
+    "chibi-wolf": "assets/stickers/chibi-wolf.webp",
+    "chibi-ghost": "assets/stickers/chibi-ghost.webp",
+    "star-girl": "assets/stickers/star-girl.webp",
+    "syringe-cat": "assets/stickers/syringe-cat.webp"
+  },
+  "stickers2x": {
+    "cat-hehe": "assets/stickers/cat-hehe@2x.webp",
+    "cat-cheeks": "assets/stickers/cat-cheeks@2x.webp",
+    "cat-sleepy": "assets/stickers/cat-sleepy@2x.webp",
+    "cat-limit": "assets/stickers/cat-limit@2x.webp",
+    "cat-tongue": "assets/stickers/cat-tongue@2x.webp",
+    "cat-lying": "assets/stickers/cat-lying@2x.webp",
+    "cat-outline": "assets/stickers/cat-outline@2x.webp",
+    "cat-scribble": "assets/stickers/cat-scribble@2x.webp",
+    "chibi-ink": "assets/stickers/chibi-ink@2x.webp",
+    "chibi-wolf": "assets/stickers/chibi-wolf@2x.webp",
+    "chibi-ghost": "assets/stickers/chibi-ghost@2x.webp",
+    "star-girl": "assets/stickers/star-girl@2x.webp",
+    "syringe-cat": "assets/stickers/syringe-cat@2x.webp"
+  },
+  "subjectStickers": {
+    "anatomy": "cat-hehe",
+    "patanatomy": "cat-cheeks",
+    "biochem": "cat-sleepy",
+    "histology": "cat-limit",
+    "microbio": "cat-tongue",
+    "dentistry": "cat-lying",
+    "philosophy": "cat-outline",
+    "physiology": "cat-scribble"
+  },
+  "subjectTextures": {
+    "anatomy": "flowers",
+    "patanatomy": "eye-wash",
+    "biochem": "coral",
+    "histology": "handshake",
+    "microbio": "swirls",
+    "dentistry": "sparkles",
+    "philosophy": "window",
+    "physiology": "eye-wash"
+  },
+  "wallpapers": {
+    "pool": {
+      "waterfall": {
+        "portrait": "assets/wallpapers/waterfall-736.webp",
+        "landscape": "assets/wallpapers/waterfall-736.webp",
+        "pos": "50% 38%",
+        "title": "Водопад"
+      },
+      "camera": {
+        "portrait": "assets/wallpapers/camera-1080.webp",
+        "landscape": "assets/wallpapers/camera-1080.webp",
+        "pos": "50% 45%",
+        "title": "Камера"
+      },
+      "fog": {
+        "portrait": "assets/wallpapers/fog-p.webp",
+        "landscape": "assets/wallpapers/fog-l.webp",
+        "pos": "50% 50%",
+        "title": "Туман"
+      },
+      "coral": {
+        "portrait": "assets/wallpapers/coral-p.webp",
+        "landscape": "assets/wallpapers/coral-l.webp",
+        "pos": "50% 50%",
+        "title": "Коралл"
+      },
+      "portrait": {
+        "portrait": "assets/wallpapers/portrait-p.webp",
+        "landscape": "assets/wallpapers/portrait-l.webp",
+        "pos": "50% 30%",
+        "title": "Портрет"
+      },
+      "child": {
+        "portrait": "assets/wallpapers/child-p.webp",
+        "landscape": "assets/wallpapers/child-l.webp",
+        "pos": "50% 40%",
+        "title": "Свет"
+      },
+      "sparkles": {
+        "portrait": "assets/wallpapers/sparkles-p.webp",
+        "landscape": "assets/wallpapers/sparkles-l.webp",
+        "pos": "50% 50%",
+        "title": "Блики"
+      },
+      "jellyfish": {
+        "portrait": "assets/posters/jellyfish-full.webp",
+        "landscape": "assets/wallpapers/jellyfish-l.webp",
+        "pos": "50% 40%",
+        "title": "Медуза"
+      }
+    },
+    "themeDefault": {
+      "cyan": "waterfall",
+      "deep": "camera",
+      "ice": "fog",
+      "sky": "sparkles",
+      "lilac": "child",
+      "rose": "waterfall"
+    }
+  },
+  "textures": {
+    "eye-wash": "assets/textures/eye-wash.webp",
+    "handshake": "assets/textures/handshake.webp",
+    "flowers": "assets/textures/flowers.webp",
+    "desk": "assets/textures/desk.webp",
+    "swirls": "assets/textures/swirls.webp",
+    "coral": "assets/textures/coral.webp",
+    "sparkles": "assets/textures/sparkles.webp",
+    "window": "assets/textures/window.webp",
+    "cat-circle": "assets/textures/cat-circle.webp"
+  },
+  "slots": {
+    "logo": "chrome-star",
+    "empty": "star-girl",
+    "error": "chibi-ghost",
+    "splash": {
+      "image": "camera",
+      "sticker": "cat-hehe"
+    },
+    "homeHero": {
+      "image": "waterfall",
+      "pos": "50% 30%"
+    },
+    "desk": "desk",
+    "settingsPoster": "assets/posters/jellyfish-full.webp",
+    "appIcon": "cat-hehe",
+    "checkPoster": "assets/posters/constellation.webp",
+    "checkSticker": "syringe-cat",
+    "emptyArt": "cat-circle",
+    "settingsPosterCrop": "assets/posters/jellyfish.webp"
+  },
+  "stickerPool": [
+    "cat-hehe",
+    "cat-cheeks",
+    "cat-sleepy",
+    "cat-limit",
+    "cat-tongue",
+    "cat-lying",
+    "cat-outline",
+    "cat-scribble",
+    "chibi-ghost",
+    "chibi-wolf",
+    "chibi-ink",
+    "star-girl",
+    "syringe-cat"
+  ]
+}

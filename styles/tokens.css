@@ -1,0 +1,47 @@
+/* Design tokens (round 3). Semantic colours live in styles/themes/*.css, one file per theme. */
+:root {
+  /* type */
+  --font-ui: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Cormorant Garamond", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --font-accent: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --fs-xs: 12px; --fs-s: 13px; --fs-m: 15px; --fs-l: 17px; --fs-xl: 22px; --fs-2xl: 30px; --fs-hero: clamp(34px, 4.6vw, 48px);
+
+  /* 8 px rhythm */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+  /* radii */
+  --r-xs: 8px; --r-s: 12px; --r-m: 16px; --r-l: 22px; --r-xl: 26px; --r-pill: 999px;
+  /* motion: only route fade, press, popover rise, page turn, progress */
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --t-fast: .16s; --t-mid: .28s; --t-slow: .5s;
+  /* layout */
+  --side-w: 236px;
+  --safe-t: env(safe-area-inset-top, 0px); --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px); --safe-r: env(safe-area-inset-right, 0px);
+  --tap: 44px;
+  --rail-w: 64px; --rail-gap: 12px;
+
+  /* highlighter colours: opaque pastels, always used with multiply (text stays black) */
+  --mark-1: #ffe58a; --mark-2: #ffc9d9; --mark-3: #cdeccf; --mark-4: #cfe6fb; --mark-5: #e6d6fb; --mark-6: #f3d2b8;
+
+  /* the document is ALWAYS light paper, whatever the theme */
+  --paper: #fdfdfc; --paper-edge: #dfe5ec; --paper-ink: #151d2e; --paper-ink2: #5d6a80;
+  --paper-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .3  0 0 0 0 .38  0 0 0 0 .5  0 0 0 .055 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* subject colours: calm cool pastels inside the blue family (tint = card background, ink = accent on that tint) */
+.sj-anatomy    { --st: #e1e7fb; --si: #44579f; }   /* periwinkle */
+.sj-patanatomy { --st: #e8e3f7; --si: #63539f; }   /* lilac-blue */
+.sj-biochem    { --st: #d6eff2; --si: #1b7487; }   /* aqua */
+.sj-histology  { --st: #dbebe8; --si: #38726a; }   /* sage-blue */
+.sj-microbio   { --st: #d9e4ee; --si: #3f6a8f; }   /* steel */
+.sj-dentistry  { --st: #e5eaf0; --si: #55698a; }   /* mist */
+.sj-philosophy { --st: #dbe9fa; --si: #2c68ad; }   /* cornflower */
+.sj-physiology { --st: #d3ecf5; --si: #1b738f; }   /* glacier */
+[data-theme="deep"] .sj-anatomy    { --st: rgba(130,150,240,.18); --si: #aab8ff; }
+[data-theme="deep"] .sj-patanatomy { --st: rgba(160,140,235,.18); --si: #c9bdff; }
+[data-theme="deep"] .sj-biochem    { --st: rgba(70,200,215,.17); --si: #8ce6f2; }
+[data-theme="deep"] .sj-histology  { --st: rgba(110,200,180,.16); --si: #a2e8d6; }
+[data-theme="deep"] .sj-microbio   { --st: rgba(110,160,210,.18); --si: #a8cdf3; }
+[data-theme="deep"] .sj-dentistry  { --st: rgba(150,170,205,.16); --si: #c3d3ee; }
+[data-theme="deep"] .sj-philosophy { --st: rgba(90,160,240,.18); --si: #9cc8ff; }
+[data-theme="deep"] .sj-physiology { --st: rgba(60,185,225,.18); --si: #86dcf5; }

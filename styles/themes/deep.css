@@ -1,0 +1,21 @@
+/* Theme «Глубина» (dark): navy gradient, glass panels, cyan accents. The reading paper stays light. */
+[data-theme="deep"] {
+  color-scheme: dark;
+  --bg: #00172f;
+  --bg-grad: radial-gradient(70% 50% at 20% 0%, #003056, transparent 70%), linear-gradient(180deg, #00172f, #002441);
+  --veil: rgba(0, 23, 47, .72);
+  --panel: rgba(255, 255, 255, .06); --panel-solid: #06233f; --panel-2: rgba(255, 255, 255, .04);
+  --line: rgba(255, 255, 255, .10); --line-2: rgba(255, 255, 255, .18);
+  --ink: #e8f1fb; --ink2: #a9bdd6; --ink3: #6f86a5;
+  --accent: #51c8fa; --accent-2: #90fafb; --accent-soft: rgba(81, 200, 250, .14); --accent-ink: #90fafb;
+  --ice: #9cb2c1; --steel: #6fa0cc; --teal: #3fb6e0; --cyan: #51c8fa;
+  --navy: #00172f; --navy-2: #002441;
+  --btn-bg: #e8f1fb; --btn-ink: #00172f; --btn-shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 22px -12px rgba(0, 0, 0, .7);
+  --danger: #ff8aa0; --danger-soft: rgba(255, 138, 160, .12); --ok: #7de3c4;
+  --glass: rgba(10, 38, 66, .72); --glass-edge: rgba(255, 255, 255, .12); --glass-hi: rgba(255, 255, 255, .10);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 16px 36px -22px rgba(0, 0, 0, .7);
+  --shadow-pop: 0 2px 6px rgba(0, 0, 0, .3), 0 20px 44px -14px rgba(0, 0, 0, .75);
+  --desk: #04213b; --desk-tex: .16;
+  --seg-bg: rgba(255, 255, 255, .08); --scrim: rgba(0, 8, 20, .6);
+  --fog: 0, 23, 47;
+}

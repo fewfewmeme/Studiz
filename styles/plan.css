@@ -1,0 +1,65 @@
+/* ===== План: a dotted paper week sheet (black ink on white, like a paper planner) ===== */
+.plan-sheet { --pink: #222; --dot: #6a6a6a; position: relative; max-width: 880px; margin: 0 auto; padding: 18px 22px 26px; background: #fff; color: #222; border-radius: 10px; box-shadow: 0 2px 0 rgba(0, 0, 0, .06), 0 16px 30px -20px rgba(0, 0, 0, .4); font-family: "Manrope", system-ui, sans-serif; }
+.plan-dots { background-image: radial-gradient(circle, var(--dot) 1.1px, transparent 1.4px); background-size: 20px 20px; background-position: 10px 10px; }
+.plan-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; border-bottom: 1.5px solid #999; padding-bottom: 8px; }
+.plan-head h1 { margin: 0; font-size: 22px; letter-spacing: .01em; font-weight: 800; text-transform: uppercase; }
+.plan-nav { display: flex; gap: 6px; flex-wrap: wrap; }
+.plan-nav .btn { background: #fff; color: #222; border: 1.5px solid #222; }
+.plan-top { display: grid; grid-template-columns: 290px 1fr; gap: 24px; margin: 18px 0 20px; align-items: start; }
+.plan-marks { display: grid; grid-template-columns: repeat(7, 1fr); border: 1.5px solid #222; background: #fff; }
+.plan-marks label { display: grid; grid-template-rows: 34px 26px; border-right: 1px solid #222; cursor: pointer; text-align: center; font-size: 13px; }
+.plan-marks label:last-child { border-right: 0; }
+.plan-marks input { appearance: none; -webkit-appearance: none; margin: 0; width: 100%; height: 100%; border: 0; border-bottom: 1px solid #222; background: #fff; cursor: pointer; }
+.plan-marks input:checked { background: #222; }
+.plan-marks span { align-self: center; }
+.plan-motiv { border: 1.5px solid #222; border-radius: 14px; background: #fff; overflow: hidden; }
+.plan-motiv h2 { margin: 0; padding: 5px 10px; font-size: 18px; border-bottom: 1px solid #999; }
+.plan-motiv textarea { display: block; width: 100%; min-height: 64px; border: 0; padding: 8px 10px; resize: none; font: inherit; background: #fff; color: #222; }
+.plan-body { display: grid; grid-template-columns: 1fr 1fr; border: 1.5px solid #222; }
+.plan-cell { min-height: 230px; border-bottom: 1.5px solid #222; padding: 6px 10px 10px; position: relative; }
+.plan-body > :nth-child(odd) { border-right: 1.5px solid #222; }
+.plan-body > :nth-last-child(-n + 2) { border-bottom: 0; }
+.plan-cell h2 { margin: 0 0 4px; font-size: 19px; font-weight: 800; display: flex; gap: 8px; align-items: baseline; }
+.plan-cell h2 small { font-weight: 600; font-size: 12px; color: #555; }
+.plan-cell.today h2::after { content: "сегодня"; font-size: 11px; font-weight: 700; border: 1.5px solid #222; border-radius: 999px; padding: 0 7px; }
+.plan-sub { margin: 4px 0 0; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: #333; }
+.plan-item { display: flex; gap: 8px; align-items: center; min-height: 28px; }
+.plan-item input[type=checkbox] { accent-color: #222; width: 18px; height: 18px; }
+.plan-item .plan-text { font-size: 14px; color: #222; }
+.plan-item .plan-text.done { text-decoration: line-through; opacity: .55; }
+.plan-item a.plan-text { text-decoration: underline; text-decoration-style: dotted; }
+.plan-add { margin-top: 2px; }
+.plan-new { width: 100%; min-height: 28px; padding: 2px 6px; border: 0 !important; border-bottom: 1px dotted #888 !important; border-radius: 0 !important; background: transparent !important; font-size: 14px; color: #222; box-shadow: none !important; }
+.plan-clip { opacity: .35; } .plan-item:hover .plan-clip { opacity: .8; }
+.plan-view .content { padding-bottom: 110px; }
+.plan-add input.input, .plan-add select.input { min-height: 30px; padding: 2px 8px; font-size: 13px; background: rgba(255, 255, 255, .9); border: 1px solid #bbb; color: #222; }
+.plan-add .btn { min-height: 30px; padding: 0 10px; background: #fff; color: #222; border: 1.5px solid #222; }
+.plan-notes-cell { display: grid; grid-template-columns: 54px 1fr; align-content: start; }
+.plan-notes-cell .rows { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; }
+.plan-notes-cell .rows label { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 4px; height: 28px; }
+.plan-notes-cell .rows input { border: 0; border-bottom: 1px dotted #777; background: transparent; font: inherit; font-size: 13px; width: 100%; color: #222; min-width: 0; }
+.plan-cat { width: 100%; max-width: 230px; align-self: end; justify-self: center; opacity: .9; pointer-events: none; }
+@media (max-width: 700px) { .plan-cell { order: var(--o, 0); } .plan-top { grid-template-columns: 1fr; } .plan-body { grid-template-columns: 1fr; } .plan-body > :nth-child(odd) { border-right: 0; } .plan-body > :nth-last-child(-n + 2) { border-bottom: 1.5px solid #222; } .plan-body > :last-child { border-bottom: 0; } }
+[data-theme="deep"] .plan-sheet { background: #fff; color: #222; }
+
+/* the sidebar got two more links: let its list scroll instead of being cut off */
+.sidebar .side-nav { min-height: 0; overflow-y: auto; }
+
+/* ---- text sits exactly on the dot grid: every row is 20px, each day cell has its OWN grid anchored at its top-left corner ---- */
+.plan-cell { padding: 0 8px 0 10px; background: radial-gradient(circle, var(--dot) 1.1px, transparent 1.5px) 0 8px / 20px 20px, #fff; }
+.plan-cell h2 { height: 40px; margin: 0; line-height: 20px; align-items: flex-end; padding-bottom: 4px; box-sizing: border-box; }
+.plan-sub { height: 20px; margin: 0; line-height: 20px; font-size: 11.5px; }
+.plan-item { min-height: 20px; gap: 6px; align-items: flex-start; }
+.plan-item .plan-text { line-height: 20px; font-size: 14px; flex: 1 1 auto; min-width: 0; }
+.plan-item input[type=checkbox] { width: 14px; height: 14px; margin: 3px 0 0; flex: none; }
+.plan-item .ibtn.sm { min-height: 20px; height: 20px; width: 22px; padding: 0; font-size: 13px; line-height: 20px; }
+.plan-item small { line-height: 20px; }
+.plan-add { margin: 0; }
+.plan-new { height: 20px !important; min-height: 20px !important; line-height: 20px; padding: 0 !important; border: 0 !important; font-size: 14px; }
+.plan-new::placeholder { color: #999; }
+.plan-notes-cell .rows { gap: 0; padding-top: 20px; }
+.plan-notes-cell .rows label { height: 20px; line-height: 20px; font-size: 14px; gap: 6px; }
+.plan-notes-cell .rows input { height: 20px; border: 0; padding: 0; line-height: 20px; font-size: 13.5px; }
+.plan-notes-cell { grid-template-columns: 1fr; position: relative; }
+.plan-notes-cell .plan-cat { position: absolute; right: 8px; bottom: 6px; width: 62%; max-width: 230px; }
+.plan-notes-cell .rows { width: 54%; }

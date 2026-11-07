@@ -1,0 +1,21 @@
+/* Theme «Лёд»: cool grey-blue, soft steel accent. */
+[data-theme="ice"] {
+  color-scheme: light;
+  --bg: #f1f4f7;
+  --bg-grad: radial-gradient(70% 55% at 8% 0%, #e6eef6, transparent 70%), linear-gradient(180deg, #f3f6f9, #ecf0f4);
+  --veil: rgba(241, 244, 247, .86);
+  --panel: rgba(255, 255, 255, .74); --panel-solid: #ffffff; --panel-2: #f7f9fb;
+  --line: rgba(20, 38, 60, .09); --line-2: rgba(20, 38, 60, .16);
+  --ink: #142640; --ink2: #4a5d78; --ink3: #8798ae;
+  --accent: #4a78b0; --accent-2: #7ea2cc; --accent-soft: rgba(74, 120, 176, .11); --accent-ink: #36608f;
+  --ice: #a7bccd; --steel: #567c9f; --teal: #2a86a8; --cyan: #58c4ea;
+  --navy: #0b2340; --navy-2: #123257;
+  --btn-bg: #142640; --btn-ink: #fff; --btn-shadow: 0 1px 2px rgba(20, 38, 64, .22), 0 8px 18px -12px rgba(20, 38, 64, .5);
+  --danger: #b4233f; --danger-soft: rgba(180, 35, 63, .09); --ok: #1f7a63;
+  --glass: rgba(255, 255, 255, .74); --glass-edge: rgba(20, 38, 60, .10); --glass-hi: rgba(255, 255, 255, .85);
+  --shadow: 0 1px 2px rgba(20, 38, 60, .05), 0 14px 34px -22px rgba(20, 38, 60, .28);
+  --shadow-pop: 0 2px 6px rgba(20, 38, 60, .08), 0 18px 40px -14px rgba(20, 38, 60, .34);
+  --desk: #e0e7ee; --desk-tex: .08;
+  --seg-bg: rgba(20, 38, 60, .06); --scrim: rgba(11, 35, 64, .32);
+  --fog: 255, 255, 255;
+}

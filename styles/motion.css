@@ -1,0 +1,17 @@
+/* Motion: route fade/slide, press scale, popover rise, page turn, progress. NOTHING loops, floats or drifts. */
+@keyframes popIn { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes pillRise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.rise { animation: none; }
+
+/* shared-element route transitions; the persistent shell parts keep their own names */
+.bg { view-transition-name: bg; }
+.sidebar { view-transition-name: sidebar; }
+.tabbar { view-transition-name: tabbar; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .26s; animation-timing-function: var(--ease); }
+::view-transition-group(*) { animation-duration: .34s; animation-timing-function: var(--ease); }
+::view-transition-old(sidebar), ::view-transition-new(sidebar), ::view-transition-old(bg), ::view-transition-new(bg), ::view-transition-old(tabbar), ::view-transition-new(tabbar) { animation: none; mix-blend-mode: normal; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01s !important; animation-duration: .01s !important; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: .01s !important; }
+}

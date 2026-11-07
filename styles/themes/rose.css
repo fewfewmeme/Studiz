@@ -1,0 +1,21 @@
+/* Theme «Роза»: quiet dusty rose (no neon). */
+[data-theme="rose"] {
+  color-scheme: light;
+  --bg: #f7eff2;
+  --bg-grad: radial-gradient(70% 55% at 8% 0%, #f3e3e9, transparent 70%), linear-gradient(180deg, #f9f1f4, #f3e8ed);
+  --veil: rgba(247, 239, 242, .86);
+  --panel: rgba(255, 255, 255, .74); --panel-solid: #ffffff; --panel-2: #fcf7f9;
+  --line: rgba(60, 25, 40, .09); --line-2: rgba(60, 25, 40, .16);
+  --ink: #2f1a26; --ink2: #6b4a5a; --ink3: #a88c98;
+  --accent: #b0486e; --accent-2: #cf7f9e; --accent-soft: rgba(176, 72, 110, .10); --accent-ink: #913a5a;
+  --ice: #cbb0bc; --steel: #8d6a7c; --teal: #5b83a8; --cyan: #7bbfe6;
+  --navy: #3a1727; --navy-2: #5a2640;
+  --btn-bg: #2f1a26; --btn-ink: #fff; --btn-shadow: 0 1px 2px rgba(47, 26, 38, .22), 0 8px 18px -12px rgba(47, 26, 38, .5);
+  --danger: #b4233f; --danger-soft: rgba(180, 35, 63, .09); --ok: #1f7a63;
+  --glass: rgba(255, 255, 255, .74); --glass-edge: rgba(60, 25, 40, .10); --glass-hi: rgba(255, 255, 255, .85);
+  --shadow: 0 1px 2px rgba(60, 25, 40, .05), 0 14px 34px -22px rgba(60, 25, 40, .28);
+  --shadow-pop: 0 2px 6px rgba(60, 25, 40, .08), 0 18px 40px -14px rgba(60, 25, 40, .34);
+  --desk: #ecdfe5; --desk-tex: .08;
+  --seg-bg: rgba(60, 25, 40, .06); --scrim: rgba(58, 23, 39, .32);
+  --fog: 255, 255, 255;
+}
