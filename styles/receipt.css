@@ -35,9 +35,9 @@
 .rc-tray .slot { width: 150px; height: 228px; border-radius: 26px; border: 2px dashed var(--line); display: grid; place-items: center; touch-action: none; }
 /* the stamp tool: handle + plate + the inked face (the face is the round print, 150px = 46% of the paper) */
 .stamp-drag { position: relative; width: 150px; height: 228px; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; z-index: 20; will-change: transform; }
-.stamp-drag .st-handle { position: absolute; left: 47px; top: 0; width: 56px; height: 70px; border-radius: 28px 28px 15px 15px; background: linear-gradient(165deg, #5877c4, #24376b 62%, #14264a); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .32), inset 0 -4px 6px rgba(0, 10, 40, .35), 0 8px 12px -8px rgba(0, 20, 60, .6); }
-.stamp-drag .st-handle::after { content: ""; position: absolute; left: 11px; top: 8px; width: 9px; height: 30px; border-radius: 6px; background: linear-gradient(rgba(255, 255, 255, .5), rgba(255, 255, 255, 0)); }
-.stamp-drag .st-plate { position: absolute; left: 9px; top: 62px; width: 132px; height: 20px; border-radius: 10px; background: linear-gradient(#2c4177, #0f1f38); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .22), 0 6px 10px -6px rgba(0, 20, 60, .55); }
+.stamp-drag .st-handle { position: absolute; left: 27px; top: 6px; width: 96px; height: 58px; border-radius: 12px 12px 6px 6px; background: linear-gradient(180deg, #e2c79c, #c39b64 55%, #aa8350); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .45), inset 0 -3px 5px rgba(90, 55, 20, .3), 0 6px 10px -6px rgba(60, 35, 10, .55); }
+.stamp-drag .st-handle::before { content: ""; position: absolute; left: 14px; right: 14px; top: 16px; height: 2px; border-radius: 2px; background: rgba(110, 70, 25, .22); box-shadow: 0 8px 0 rgba(110, 70, 25, .18), 0 16px 0 rgba(110, 70, 25, .14); }   /* wood grain */
+.stamp-drag .st-plate { position: absolute; left: 6px; top: 60px; width: 138px; height: 20px; border-radius: 5px; background: linear-gradient(180deg, #9a7544, #7b5a30); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .25), 0 5px 9px -5px rgba(60, 35, 10, .6); }
 .stamp-drag .st-face { position: absolute; left: 0; top: 78px; width: 150px; height: 150px; display: block; pointer-events: none; -webkit-user-drag: none; }
 .stamp-drag.dragging { position: fixed; z-index: 4000; cursor: grabbing; }
 .stamp-drag.dragging .st-face { filter: drop-shadow(0 10px 10px rgba(0, 0, 0, .28)); }
