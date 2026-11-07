@@ -171,8 +171,5 @@ The tiny remainder is the stamp: the export embeds a 64-colour copy of `assets/s
 .rc-piece.bottom { z-index: 1; margin-top: 0; }
 .rc-sheet { position: relative; box-shadow: 0 2px 0 rgba(0, 0, 0, .06), 0 16px 30px -20px rgba(0, 0, 0, .4); border-radius: 6px 6px 0 0; }
 .rc-stamp-img { position: absolute; z-index: 3; pointer-events: none; user-select: none; -webkit-user-select: none; }
-.rc-banner { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); align-items: center; padding: var(--s3) var(--s4); border-radius: var(--r-m); background: var(--panel-solid); border: 1px solid var(--line); margin-bottom: var(--s3); }
-.rc-banner[hidden] { display: none; }
 .rc-item { display: flex; flex-direction: column; gap: var(--s2); align-items: center; width: 326px; max-width: 100%; }
-.rc-item .actions { display: flex; flex-wrap: wrap; gap: var(--s2); justify-content: center; }
 ```
