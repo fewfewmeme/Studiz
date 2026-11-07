@@ -32,9 +32,9 @@ export const raf = () => new Promise(r => requestAnimationFrame(() => r()));
 export const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 export function debounce(fn, ms) {
-  let t = null;
-  const d = (...a) => { clearTimeout(t); t = setTimeout(() => { t = null; fn(...a); }, ms); };
-  d.flush = (...a) => { if (t) { clearTimeout(t); t = null; fn(...a); } };
+  let t = null, last = [];
+  const d = (...a) => { last = a; clearTimeout(t); t = setTimeout(() => { t = null; fn(...a); }, ms); };
+  d.flush = () => { if (t) { clearTimeout(t); t = null; fn(...last); } };       // runs the PENDING call with its own arguments (it used to pass none: saveProgress(undefined) -> NaN -> «прочитано 0%»)
   d.cancel = () => { clearTimeout(t); t = null; };
   d.pending = () => t !== null;
   return d;

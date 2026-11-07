@@ -32,10 +32,17 @@
 .rc-hint { text-align: center; color: var(--ink2); font-size: var(--fs-s, 13px); margin: var(--s2) 0; min-height: 1.4em; }
 /* stamp: rests beside the receipt, dragged by a finger */
 .rc-tray { width: 150px; display: flex; flex-direction: column; align-items: center; gap: var(--s2); }
-.rc-tray .slot { width: 150px; height: 150px; border-radius: 50%; border: 2px dashed var(--line); display: grid; place-items: center; touch-action: none; }
-.stamp-drag { position: relative; width: 150px; height: 150px; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; z-index: 20; }
-.stamp-drag img { width: 100%; height: 100%; display: block; pointer-events: none; -webkit-user-drag: none; }
-.stamp-drag.dragging { position: fixed; z-index: 4000; cursor: grabbing; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, .25)); }
+.rc-tray .slot { width: 150px; height: 228px; border-radius: 26px; border: 2px dashed var(--line); display: grid; place-items: center; touch-action: none; }
+/* the stamp tool: handle + plate + the inked face (the face is the round print, 150px = 46% of the paper) */
+.stamp-drag { position: relative; width: 150px; height: 228px; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; z-index: 20; will-change: transform; }
+.stamp-drag .st-handle { position: absolute; left: 47px; top: 0; width: 56px; height: 70px; border-radius: 28px 28px 15px 15px; background: linear-gradient(165deg, #5877c4, #24376b 62%, #14264a); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .32), inset 0 -4px 6px rgba(0, 10, 40, .35), 0 8px 12px -8px rgba(0, 20, 60, .6); }
+.stamp-drag .st-handle::after { content: ""; position: absolute; left: 11px; top: 8px; width: 9px; height: 30px; border-radius: 6px; background: linear-gradient(rgba(255, 255, 255, .5), rgba(255, 255, 255, 0)); }
+.stamp-drag .st-plate { position: absolute; left: 9px; top: 62px; width: 132px; height: 20px; border-radius: 10px; background: linear-gradient(#2c4177, #0f1f38); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .22), 0 6px 10px -6px rgba(0, 20, 60, .55); }
+.stamp-drag .st-face { position: absolute; left: 0; top: 78px; width: 150px; height: 150px; display: block; pointer-events: none; -webkit-user-drag: none; }
+.stamp-drag.dragging { position: fixed; z-index: 4000; cursor: grabbing; }
+.stamp-drag.dragging .st-face { filter: drop-shadow(0 10px 10px rgba(0, 0, 0, .28)); }
+.stamp-ghost { position: absolute; z-index: 5; border-radius: 50%; border: 2px dashed var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); pointer-events: none; }
+.stamp-ghost[hidden] { display: none; }
 .rc-banner { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); align-items: center; padding: var(--s3) var(--s4); border-radius: var(--r-m); background: var(--panel-solid); border: 1px solid var(--line); margin-bottom: var(--s3); }
 .rc-banner[hidden] { display: none; }
 /* Days / Archive */

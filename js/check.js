@@ -105,51 +105,88 @@ export async function renderCheck(root) {
       hint.textContent = '';
       return;
     }
-    // ----- stamp tray -----
-    const stampEl = () => h('div', { class: 'stamp-drag', role: 'img', 'aria-label': 'Печать — перетащите на линию отрыва' }, h('img', { src: STAMP_SRC, alt: '', draggable: 'false' }));
+    // ----- the stamp tool: a hand stamp (handle + plate + inked face). Pick it up anywhere, bring its FACE to the tear line, let go: it presses,
+    //       the print appears (ink animation), the tool lifts away. Outside the paper it flies back to the tray. -----
+    const FACE = Math.round(W * STAMP_RATIO), FACE_TOP = 78, TOOL_H = FACE_TOP + FACE;     // face 150px under a 78px handle+plate
+    const toolEl = () => h('div', { class: 'stamp-drag stamp-tool', role: 'img', 'aria-label': 'Штамп — возьмите и приложите к линии отрыва' },
+      h('div', { class: 'st-handle' }), h('div', { class: 'st-plate' }), h('img', { class: 'st-face', src: STAMP_SRC, alt: '', draggable: 'false' }));
     const slot = h('div', { class: 'slot' });
+    const ghost = h('div', { class: 'stamp-ghost', hidden: true, 'aria-hidden': 'true' }); ghost.style.width = ghost.style.height = FACE + 'px';
+    sheet.append(ghost);
     tray.append(slot, h('button', { class: 'btn btn-quiet btn-sm', type: 'button', hidden: true, id: 'restamp' }, 'Переставить печать'));
     const restampBtn = tray.querySelector('#restamp');
-    let drag = null;
-    const mountTrayStamp = () => { const s = stampEl(); slot.replaceChildren(s); bindDrag(s, false); hint.textContent = 'Перетащите печать на линию отрыва, потом проведите пальцем вдоль линии.'; };
+    let drag = null, pressing = false;
+    const mountTrayStamp = () => { const s = toolEl(); slot.replaceChildren(s); bindDrag(s); hint.textContent = 'Возьмите штамп, поднесите к линии отрыва и отпустите — он оставит печать. Потом проведите пальцем вдоль линии.'; };
     function placeStamp(x) {
       state.sx = +(x / W).toFixed(2); state.placed = true;
       top.querySelector('.rc-stamp-img')?.remove(); bottom.querySelector('.rc-stamp-img')?.remove();
       const a = stampHalf('top', state.sx, W), b = stampHalf('bottom', state.sx, W);
       top.firstChild.append(a); bottom.firstChild.append(b);
-      if (!reduceMotion()) for (const el of [a, b]) el.animate([{ opacity: 0.25, transform: 'scale(1.08)', filter: 'drop-shadow(0 6px 6px rgba(0,0,0,.3))' }, { opacity: 1, transform: 'scale(1)', filter: 'none' }], { duration: 250, easing: 'ease-out' });
+      // the ink: the print lands slightly big and blurred, then settles
+      if (!reduceMotion()) for (const el of [a, b]) el.animate([{ opacity: 0, transform: 'scale(1.12)', filter: 'blur(3px)' }, { opacity: 1, transform: 'scale(.985)', filter: 'blur(.6px)', offset: .55 }, { opacity: 1, transform: 'scale(1)', filter: 'none' }], { duration: 320, easing: 'ease-out' });
       hit.hidden = false; hit.style.top = th() + 'px';
       slot.replaceChildren(); restampBtn.hidden = false;
       hint.textContent = 'Теперь проведите пальцем вдоль линии отрыва (в любую сторону).';
     }
     function liftStamp() {
-      top.querySelector('.rc-stamp-img')?.remove(); bottom.querySelector('.rc-stamp-img')?.remove();
+      const imgs = [top.querySelector('.rc-stamp-img'), bottom.querySelector('.rc-stamp-img')].filter(Boolean);
+      imgs.forEach(el => { if (reduceMotion()) el.remove(); else el.animate([{ opacity: 1 }, { opacity: 0, transform: 'scale(1.06)' }], { duration: 160, fill: 'forwards' }).finished.then(() => el.remove(), () => el.remove()); });
       state.placed = false; state.sx = null; hit.hidden = true; restampBtn.hidden = true; mountTrayStamp();
     }
-    restampBtn.addEventListener('click', () => { if (!state.tearing) liftStamp(); });
-    // drag a stamp from the tray (or a lifted one): Pointer Events, the finger holds the centre of the stamp
+    restampBtn.addEventListener('click', () => { if (!state.tearing && !pressing) liftStamp(); });
+    // where the stamp FACE would land: its centre = pointer + the grab offset; it only counts near the tear line
+    const faceAt = (d, e) => ({ x: e.clientX + d.fx, y: e.clientY + d.fy });
+    const lineY = () => sheet.getBoundingClientRect().top + th();
+    const nearLine = (f, rr) => Math.abs(f.y - (rr.top + th())) < FACE * 0.7 && f.x > rr.left - FACE * 0.3 && f.x < rr.right + FACE * 0.3;
     function bindDrag(el) {
       el.addEventListener('pointerdown', e => {
-        if (state.tearing || e.button > 0) return;
+        if (state.tearing || pressing || e.button > 0) return;
         e.preventDefault();
-        const r = el.getBoundingClientRect(), size = r.width;
-        drag = { el, id: e.pointerId, size, ox: r.left, oy: r.top };
-        el.classList.add('dragging'); el.style.left = r.left + 'px'; el.style.top = r.top + 'px'; el.style.width = el.style.height = size + 'px';
+        const r = el.getBoundingClientRect();
+        // the tool stays where it is (position:fixed at its own place) and moves with a transform: cheap on every frame
+        drag = { el, id: e.pointerId, left: r.left, top: r.top, gx: e.clientX, gy: e.clientY, fx: r.left + FACE / 2 - e.clientX, fy: r.top + FACE_TOP + FACE / 2 - e.clientY, slotRect: slot.getBoundingClientRect() };
+        el.classList.add('dragging'); el.style.left = r.left + 'px'; el.style.top = r.top + 'px';
         try { el.setPointerCapture(e.pointerId); } catch { /* ignore */ }
-        // the slot keeps its place
         move(e);
       });
       el.addEventListener('pointermove', move);
       el.addEventListener('pointerup', end); el.addEventListener('pointercancel', e => end(e, true));
     }
-    function move(e) { if (!drag || e.pointerId !== drag.id) return; const s = drag.size; drag.el.style.left = (e.clientX - s / 2) + 'px'; drag.el.style.top = (e.clientY - s / 2) + 'px'; }
-    function end(e, cancelled) {
+    function move(e) {
       if (!drag || e.pointerId !== drag.id) return;
-      const d = drag; drag = null;
-      const rr = sheet.getBoundingClientRect(), cx = e.clientX, cy = e.clientY, Rd = R;
-      const inside = !cancelled && cx > rr.left - Rd * 0.5 && cx < rr.right + Rd * 0.5 && cy > rr.top - Rd && cy < rr.bottom + Rd;
-      if (inside) { d.el.remove(); placeStamp(clamp(cx - rr.left, Rd, W - Rd)); }
-      else { d.el.classList.remove('dragging'); d.el.style.cssText = ''; }
+      drag.el.style.transform = `translate(${e.clientX - drag.gx}px, ${e.clientY - drag.gy}px) scale(1.05)`;
+      const f = faceAt(drag, e), rr = sheet.getBoundingClientRect(), on = nearLine(f, rr);
+      ghost.hidden = !on;
+      if (on) { const x = clamp(f.x - rr.left, FACE / 2, W - FACE / 2); ghost.style.left = (x - FACE / 2) + 'px'; ghost.style.top = (th() - FACE / 2) + 'px'; }
+    }
+    async function end(e, cancelled) {
+      if (!drag || e.pointerId !== drag.id) return;
+      const d = drag; drag = null; ghost.hidden = true;
+      const rr = sheet.getBoundingClientRect(), f = faceAt(d, e), inside = !cancelled && nearLine(f, rr);
+      const tx = e.clientX - d.gx, ty = e.clientY - d.gy;
+      if (!inside) { await flyBack(d, tx, ty); return; }
+      pressing = true;
+      const x = clamp(f.x - rr.left, FACE / 2, W - FACE / 2);
+      // leave the slot: the tool becomes a free fixed element for the animation
+      document.body.append(d.el); slot.replaceChildren();
+      if (reduceMotion()) { d.el.remove(); placeStamp(x); pressing = false; return; }
+      // 1) glide above the spot (face centre over the line, a little raised)  2) press down  3) the print appears  4) lift away
+      const toX = rr.left + x - (d.left + FACE / 2), toY = (rr.top + th() - FACE / 2 - FACE_TOP) - d.top;
+      try {
+        await d.el.animate([{ transform: `translate(${tx}px, ${ty}px) scale(1.05)` }, { transform: `translate(${toX}px, ${toY - 22}px) scale(1.07)` }], { duration: 170, easing: 'ease-out', fill: 'forwards' }).finished;
+        await d.el.animate([{ transform: `translate(${toX}px, ${toY - 22}px) scale(1.07)` }, { transform: `translate(${toX}px, ${toY}px) scale(1)` }], { duration: 110, easing: 'cubic-bezier(.55,0,.9,.45)', fill: 'forwards' }).finished;
+        placeStamp(x);
+        await new Promise(r => setTimeout(r, 110));
+        await d.el.animate([{ transform: `translate(${toX}px, ${toY}px) scale(1)`, opacity: 1 }, { transform: `translate(${toX}px, ${toY - 90}px) scale(1.1)`, opacity: 0 }], { duration: 340, easing: 'ease-out', fill: 'forwards' }).finished;
+      } catch { /* interrupted */ }
+      d.el.remove();
+      if (!state.placed) placeStamp(x);
+      pressing = false;
+    }
+    async function flyBack(d, tx, ty) {
+      const s = slot.getBoundingClientRect();
+      if (!reduceMotion()) { try { await d.el.animate([{ transform: `translate(${tx}px, ${ty}px) scale(1.05)` }, { transform: `translate(${s.left - d.left}px, ${s.top - d.top}px) scale(1)` }], { duration: 230, easing: 'cubic-bezier(.3,.8,.3,1)', fill: 'forwards' }).finished; } catch { /* ignore */ } }
+      d.el.classList.remove('dragging'); d.el.style.cssText = ''; d.el.getAnimations?.().forEach(a => a.cancel());
     }
     mountTrayStamp();
 
@@ -159,9 +196,11 @@ export async function renderCheck(root) {
       const H1 = th(), H2 = bh();
       top.style.clipPath = p > 0 ? tearPolygon('bottom', W, H1, jag, a, b) : '';
       bottom.style.clipPath = tearPolygon('top', W, H2, jag, p > 0 ? a : 0, p > 0 ? b : 0);
-      peel.style.transformOrigin = fromLeft ? 'right bottom' : 'left bottom';
+      // only the transform changes per frame (a blurred box-shadow that changed every frame was repainted at 60 fps on the iPad: that was the tremble)
+      if (peel.dataset.o !== (fromLeft ? 'l' : 'r')) { peel.dataset.o = fromLeft ? 'l' : 'r'; peel.style.transformOrigin = fromLeft ? 'right bottom' : 'left bottom'; }
       peel.style.transform = p > 0 ? `rotate(${(fromLeft ? 1 : -1) * p * 10}deg) translateY(${-p * 6}px)` : '';
-      peel.style.boxShadow = p > 0 ? `0 ${2 + p * 8}px ${6 + p * 12}px rgba(0,0,0,${0.12 + p * 0.2})` : '';
+      if (p > 0 && !peel.dataset.sh) { peel.dataset.sh = '1'; peel.style.willChange = 'transform'; peel.style.boxShadow = '0 8px 18px rgba(0,0,0,.24)'; }
+      else if (p <= 0 && peel.dataset.sh) { delete peel.dataset.sh; peel.style.willChange = ''; peel.style.boxShadow = ''; }
     };
     hit.addEventListener('pointerdown', e => {
       if (state.busy || !state.placed) return;

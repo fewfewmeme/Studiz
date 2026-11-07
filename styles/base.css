@@ -43,9 +43,10 @@ small { font-size: var(--fs-xs); color: var(--ink2); }
 .sec-head h2 { font-family: var(--font-display); font-weight: 600; font-size: 26px; letter-spacing: -.01em; }
 .page-head { display: flex; flex-direction: column; gap: var(--s1); }
 
-.sidebar { position: sticky; top: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column; gap: var(--s3); padding: var(--s4) var(--s3) var(--s3); background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; scrollbar-width: none; }
+.sidebar { position: sticky; top: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column; gap: var(--s3); padding: calc(var(--s5) + var(--safe-t)) var(--s3) var(--s3); background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; scrollbar-width: none; }
 .sidebar::-webkit-scrollbar { display: none; }
-.logo { display: flex; align-items: center; gap: var(--s3); padding: var(--s1) var(--s2) var(--s2); color: var(--ink); }
+.view-host { padding-top: var(--safe-t); }
+.logo { display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s2) var(--s3); color: var(--ink); }   /* lower than before: on the iPad (home-screen app) the title no longer sits against the status bar / clock */
 .logo-mark { width: 40px; height: 40px; display: grid; place-items: center; flex: none; }
 .logo-mark img { width: 40px; height: 40px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0, 23, 47, .25)); }
 .logo-text { display: flex; flex-direction: column; line-height: 1.1; }

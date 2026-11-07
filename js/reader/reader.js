@@ -75,7 +75,10 @@ export async function renderReader(root, id) {
     let metaChain = Promise.resolve();
     const patchMeta = patch => (metaChain = metaChain.then(() => db.modify('files', id, f => (f ? { ...f, ...patch } : undefined))).catch(() => {}));
     const savePos = (m, o) => { db.kvSet(`pos:${id}:${m}`, o).catch(() => {}); };
-    const saveProgress = debounce(r => patchMeta({ progress: clamp(r, 0, 1) }), 800);
+    // «прочитано» is the FURTHEST point reached: scrolling back up, the first scroll reports of a freshly opened file (top = 0 before the saved position is restored),
+    // a relayout after a zoom or a pinch preview must never lower it. A non-number is never stored (it showed as 0 %).
+    let furthest = Number.isFinite(meta.progress) ? meta.progress : 0;
+    const saveProgress = debounce(r => { if (!Number.isFinite(r)) return; r = r >= 0.985 ? 1 : clamp(r, 0, 1); if (r > furthest) { furthest = r; patchMeta({ progress: r }); } }, 800);
     const progressFn = r => { progress.firstChild.style.width = (clamp(r, 0, 1) * 100).toFixed(1) + '%'; saveProgress(r); };
     let doc = null, unanchored = [], moreBtn = null, pointerDown = false;
     const ctx = {
@@ -591,7 +594,7 @@ export async function renderReader(root, id) {
     const first = doc.noBlocks && first0 === 'blocks' ? 'normal' : first0;
     await switchMode(first, true);
 
-    const flushAll = () => { store.flush(); doc.blocks?.flushNow?.(); doc.flushNow?.(); };
+    const flushAll = () => { store.flush(); doc.blocks?.flushNow?.(); doc.flushNow?.(); saveProgress.flush(); };
     const onVis = () => { if (document.visibilityState === 'hidden') flushAll(); };
     document.addEventListener('visibilitychange', onVis); addEventListener('pagehide', flushAll);
     window.__reader = { store, tools, doc: () => doc, switchMode, el: reader, openPop, closePop, setFocus, layout };   // handle for tests/debugging

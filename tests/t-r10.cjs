@@ -105,7 +105,7 @@ async function run(browser) {
   const box = sel => p.evaluate(s => { const r = document.querySelector(s).getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }, sel);
   const st = await box('.stamp-drag'), sh = await box('.rc-sheet'), topH = await p.evaluate(() => document.querySelector('.rc-piece.top').offsetHeight);
   const dropX = sh.x + sh.w * 0.3, dropY = sh.y + topH - 60;       // dropped ABOVE the line: Y must snap onto it
-  await p.mouse.move(st.x + st.w / 2, st.y + st.h / 2); await p.mouse.down(); await p.mouse.move(dropX, dropY, { steps: 8 }); await p.mouse.up(); await sleep(500);
+  await p.mouse.move(st.x + st.w / 2, st.y + st.h / 2); await p.mouse.down(); await p.mouse.move(dropX, dropY, { steps: 8 }); await p.mouse.up(); await sleep(1100);   // the stamp tool glides, presses, the print appears, the tool lifts away
   const placed = await p.evaluate(() => ({ imgs: document.querySelectorAll('.rc-stamp-img').length, top: document.querySelector('.rc-piece.top .rc-stamp-img')?.getBoundingClientRect().toJSON(), bot: document.querySelector('.rc-piece.bottom .rc-stamp-img')?.getBoundingClientRect().toJSON(), line: document.querySelector('.rc-tear').getBoundingClientRect().toJSON(), sheet: document.querySelector('.rc-sheet').getBoundingClientRect().toJSON() }));
   ok('печать поставлена (две половинки)', placed.imgs === 2, placed.imgs);
   const R = (placed.top.width) / 2, cy = placed.top.bottom - R;   // centre of the top image = its bottom edge minus R… (top image sticks out R below the piece)
