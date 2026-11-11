@@ -399,3 +399,15 @@ html.reader-open, html.reader-open body { overflow: hidden; overscroll-behavior:
 
 /* Round 10 audit: inside the reader the glass panels are solid. backdrop-filter over a moving document is recomputed every frame (it was already switched off during a turn). */
 .reader .glass, .reader .popover, .reader .obj-ctl { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--panel-solid); }
+
+/* Dark document background: the reader's own panels (side rails, top bar, dock, popovers) go dark with it */
+.reader.doc-dark { color-scheme: dark; --panel: rgba(255, 255, 255, .06); --panel-solid: #17181c; --panel-2: rgba(255, 255, 255, .05);
+  --line: rgba(255, 255, 255, .10); --line-2: rgba(255, 255, 255, .18); --ink: #e8eaee; --ink2: #a8adb8; --ink3: #6f7684;
+  --accent: #7ea6ff; --accent-2: #a9c2ff; --accent-soft: rgba(126, 166, 255, .16); --accent-ink: #b4ccff;
+  --btn-bg: #e8eaee; --btn-ink: #0d0d0f; --danger: #ff8aa0; --danger-soft: rgba(255, 138, 160, .12);
+  --glass: rgba(22, 23, 27, .82); --glass-edge: rgba(255, 255, 255, .12); --glass-hi: rgba(255, 255, 255, .08);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 16px 36px -22px rgba(0, 0, 0, .8); --shadow-pop: 0 2px 6px rgba(0, 0, 0, .4), 0 20px 44px -14px rgba(0, 0, 0, .85);
+  --desk: #08080a; --seg-bg: rgba(255, 255, 255, .08); --scrim: rgba(0, 0, 0, .6); }
+.reader.doc-dark { color: var(--ink); }
+.reader.doc-dark .lz-frame { box-shadow: 0 0 0 1px rgba(255, 255, 255, .10), var(--shadow); }
+.reader.doc-dark .popover, .reader.doc-dark .rail, .reader.doc-dark .rd-top, .reader.doc-dark .dock, .reader.doc-dark .pill { color: var(--ink); }
