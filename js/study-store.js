@@ -118,6 +118,7 @@ export async function applyRemoteEvents(list, closedDays) {
   if (fresh.length) { await db.kvSet(EVENTS_KEY, [...have, ...fresh].slice(-5000)); persist(); emit('change'); }
   return out;
 }
+export function setExternal(on) { const was = !!S.ext; T.setExternal(S, on, now()); if (was !== !!S.ext) { persist(); emit('change'); } }
 export function stopBlock() { if (!S.block) return; T.abandonBlock(S); persist(); emit('blockAbandoned', 'stopped'); emit('change'); }
 export const elapsedMs = () => T.elapsedMs(S, now());
 export const blockLeftMs = () => T.blockRemainingMs(S, now());

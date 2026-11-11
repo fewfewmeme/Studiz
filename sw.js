@@ -1,6 +1,6 @@
 // Service worker: кэш оболочки приложения с версией, работа офлайн после первой загрузки.
 // Список файлов и версия между маркерами генерируются командой: node tools/build-sw.mjs
-const VERSION = 'b077513ad7';
+const VERSION = '653197434d';
 const CACHE = 'konspekty-' + VERSION;
 // BEGIN ASSETS
 const ASSETS = [

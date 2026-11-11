@@ -518,16 +518,19 @@ export async function renderReader(root, id) {
     const ringFg = chipRing.querySelector('.ring-fg');
     let chipIconState = '';
     function paintChip() {
-      timeEl.hidden = false;
       if (chipOverride) {   // a block countdown is running
         chipText.textContent = chipOverride.text; ringFg.setAttribute('stroke-dashoffset', String(C * (1 - clamp(chipOverride.frac ?? 0, 0, 1)))); timeEl.classList.add('run'); timeEl.classList.remove('idle', 'gen', 'paused'); timerHint.hidden = true; return;
       }
-      // no running block: a quiet «Блок» pill (there is NO general reading timer any more); tap opens the 5 / 10 minute choice
-      timeEl.classList.remove('run', 'paused', 'gen'); timeEl.classList.add('idle'); chipText.textContent = 'Блок';
-      if (chipIconState !== 'clock') { chipIconState = 'clock'; chipIcon.replaceChildren(icon('clock', 20)); }
-      const label = 'Таймер блока: 5 или 10 минут'; if (timeEl.getAttribute('aria-label') !== label) { timeEl.setAttribute('aria-label', label); timeEl.title = label; }
-      timerHint.hidden = true; timeEl.hidden = mode === 'orig';      // Оригинал: the file has its own timer, the site shows none
+      // the general study timer: minutes of the open receipt; tap = pause / continue
+      const gs = ST.state(), inBlocks = mode === 'blocks' || !!gs.ext, paused = gs.paused || inBlocks;
+      timeEl.classList.remove('run', 'idle'); timeEl.classList.add('gen'); timeEl.classList.toggle('paused', paused);
+      chipText.textContent = Math.floor(ST.elapsedMs() / 60000) + ' мин';
+      const ic = paused ? 'pause' : 'clock'; if (ic !== chipIconState) { chipIconState = ic; chipIcon.replaceChildren(icon(ic, 20)); }
+      const label = inBlocks ? 'Таймер блока (общее время на паузе)' : paused ? 'Общий таймер на паузе: нажмите, чтобы продолжить' : 'Общий таймер идёт: нажмите, чтобы поставить на паузу';
+      if (timeEl.getAttribute('aria-label') !== label) { timeEl.setAttribute('aria-label', label); timeEl.title = label; }
+      timerHint.hidden = !(gs.paused && gs.pausedBy === 'auto' && !inBlocks && gs.subj);
     }
+    timerHint.addEventListener('click', () => { if (ST.state().paused) { ST.togglePause(); paintChip(); } });
     const offST = ST.subscribe(k => { if (k === 'tick' || k === 'change' || k === 'visible' || k === 'hidden') paintChip(); });
     // exam flag of this file (also in the file card menu)
     const syncExam = () => { examBtn.classList.toggle('on', !!meta.exam); examBtn.setAttribute('aria-pressed', String(!!meta.exam)); examBadge.hidden = !meta.exam; };
@@ -535,7 +538,8 @@ export async function renderReader(root, id) {
     examBtn.addEventListener('click', () => toggleExam()); syncExam();
     timeEl.addEventListener('click', () => {
       if (pop && pop.anchor === timeEl) { closePop(); return; }
-      if (doc.blocks && mode !== 'orig') doc.blocks.openTimerPop(timeEl); else toast('В этом файле свой таймер — блок засчитается сам');
+      if (mode === 'blocks' && doc.blocks) { doc.blocks.openTimerPop(timeEl); return; }
+      ST.togglePause(); paintChip();
     });
     listBtn.addEventListener('click', () => doc.blocks?.openList());
 

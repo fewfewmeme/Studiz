@@ -95,7 +95,10 @@ export class FrameBlocks {
   // and a 5 / 10 minute block ONLY when its countdown reaches zero (stopping, leaving or closing the page earlier credits nothing).
   // the file's own countdown (heuristic adapter or the studiz:block-* contract): the reward is credited ONCE when it reaches 00:00; the site shows no second timer
   onOrigTimer(d) {
+    if (d.ev === 'start') ST.setExternal(true);                 // the general timer waits while the file's own block timer runs (no two counters in parallel)
+    else if (d.ev === 'pause' || d.ev === 'cancel') ST.setExternal(false);
     if (d.ev === 'complete') {
+      ST.setExternal(false);
       const n = Date.now(); if (this._lastCredit && n - this._lastCredit < 4000) return; this._lastCredit = n;
       if (ST.creditBlock(Number(d.minutes) === 10 ? 10 : 5)) toast('Блок засчитан');
     }

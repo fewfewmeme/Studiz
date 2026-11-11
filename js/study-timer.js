@@ -22,7 +22,8 @@ export const emptyTimer = () => ({
   done: { b5: 0, b10: 0 }, // completed blocks
   blockBySubjMs: {},       // time of completed blocks per subject
   blockExamMs: 0,
-  hiddenAt: null
+  hiddenAt: null,
+  ext: false               // the file's own block timer is running (not persisted: false after a reload)
 });
 
 // move the running segment into the accumulators
@@ -39,18 +40,18 @@ export function flush(S, t) {
 // mode: 'normal' | 'book' | 'blocks' | 'orig'. Opening any file starts the timer; it keeps running across files and is only reset by tearing the receipt.
 export function openFile(S, subj, exam, mode, t) {
   flush(S, t);
-  // NO passive reading timer any more: time, fish and shrimp come only from completed blocks (and minutes added by hand).
-  // A running block keeps running when the reading view changes (Обычный / Книга / Блоки / Оригинал); it ends on leaveFile / 15 s away / Стоп.
+  if (S.block && mode !== 'blocks') abandonBlock(S);          // left the block for ordinary reading: nothing is credited
   S.subj = subj || null; S.exam = !!exam;
-  S.runStart = null; S.paused = false; S.pausedBy = null;
   if (S.dayStart == null) { S.dayStart = t; S.rid = S.rid || randomId(); }
+  if (mode === 'blocks' || S.ext) S.runStart = null;           // the general timer stops while blocks are done (ours, or the file's OWN block timer in «Оригинал»)
+  else if (!S.paused) S.runStart = S.runStart ?? t;
   return S;
 }
 
 // home / settings / receipt: the timer does not run (and a block that was running is abandoned)
 export function leaveFile(S, t) {
   flush(S, t);
-  S.runStart = null; S.subj = null; S.exam = false;
+  S.runStart = null; S.subj = null; S.exam = false; S.ext = false;
   if (S.block) abandonBlock(S);
   return S;
 }
@@ -115,6 +116,13 @@ export function completeBlock(S) {
   if (b.exam) { S.blockExamMs += ms; if (!S.examSubjs.includes(b.subj)) S.examSubjs.push(b.subj); }
   S.lastBlock = { subj: b.subj, exam: !!b.exam, lenMin: b.lenMin, fish: b.lenMin === 5 ? 1 : 2, shrimp: b.lenMin === 10 ? 1 : 0 };   // transient, for the reward card
   S.block = null;
+  return S;
+}
+// the open file runs its OWN block timer («Оригинал»): the general timer waits for it (no two counters in parallel) and continues afterwards
+export function setExternal(S, on, t) {
+  on = !!on; if (!!S.ext === on) return S;
+  flush(S, t); S.ext = on;
+  if (on) S.runStart = null; else if (S.subj && !S.paused && !S.block) S.runStart = t;
   return S;
 }
 // a block finished inside a file's OWN timer (Оригинал): the same credit as our own countdown reaching zero
