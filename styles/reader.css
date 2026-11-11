@@ -363,13 +363,13 @@ html[data-readfont="serif"] .doc { font-family: "Iowan Old Style", "Palatino", G
 .lz-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: var(--doc-bg, #fff); border-radius: var(--r-m); box-shadow: 0 0 0 1px var(--paper-edge), var(--shadow); color-scheme: normal; }
 .lz-frame.lz-hidden { visibility: hidden; }
 .reader.port .lz-frame { border-radius: 0; box-shadow: none; }
-.reader[data-mode="orig"] .rail, .reader[data-mode="orig"] .rd-top, .reader[data-mode="orig"] .dock, .reader[data-mode="orig"] .rd-edge, .reader[data-mode="orig"] .rd-progress, .reader[data-mode="orig"] .rd-label { display: none !important; }
-.reader[data-mode="orig"] .rd-stage { inset: 0 !important; }
+/* Оригинал keeps the normal rails (no floating hamburger over the file): only the page-progress strip and the mode label are hidden */
+.reader[data-mode="orig"] .rd-progress, .reader[data-mode="orig"] .rd-label { display: none !important; }
 .reader[data-mode="orig"] .lz-frame { border-radius: 0; box-shadow: none; }
 .orig-handle { position: absolute; z-index: 40; left: 8px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 22px; display: grid; place-items: center; opacity: 0; pointer-events: none; transition: opacity var(--t-mid); }
 .orig-handle.show { opacity: 1; pointer-events: auto; }
 .orig-handle[hidden] { display: none; }
-.reader[data-mode="orig"] .orig-handle { display: grid; }
+.reader[data-mode="orig"] .orig-handle { display: none !important; }
 .cmf { min-width: 280px; max-width: 360px; }
 .cmf-row { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; border-top: 1px solid var(--line); }
 .cmf-l { font-weight: 700; font-size: 12px; color: var(--ink2); letter-spacing: .02em; }

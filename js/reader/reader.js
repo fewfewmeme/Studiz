@@ -89,10 +89,10 @@ export async function renderReader(root, id) {
       onUnanchored: list => { unanchored = list || []; moreBtn?.classList.toggle('badge', unanchored.length > 0); },
       pop: { open: (...a) => openPop(...a), close: () => closePop(), el: () => pop?.el },
       chipEl: () => timeEl, root: reader, switchMode: m => switchMode(m), getSettings: () => settings(),
-      wake: () => wake(), onSelection: () => updateSel(), onPointer: d => { pointerDown = !!d; },
+      wake: () => wake(), onSelection: () => updateSel(), onPointer: d => { pointerDown = !!d; if (d) closePop(); },   // a tap inside the document closes any open popover
       onTheme: t => { try { const k = t.bg + '|' + t.accent; if (meta.docTheme?.k !== k) { meta.docTheme = { k, bg: t.bg, ink: t.ink, accent: t.accent }; patchMeta({ docTheme: meta.docTheme }); } document.querySelector('meta[name=theme-color]')?.setAttribute('content', rgbHex(t.bg)); } catch { /* cosmetic */ }
         reader.style.setProperty('--doc-bg', t.bg); reader.style.setProperty('--doc-ink', t.ink); reader.style.setProperty('--doc-accent', t.accent); reader.classList.toggle('doc-dark', !!t.dark); },
-      onFrameScroll: top => frameScroll(top),
+      onFrameScroll: top => { if (pop) closePop(); frameScroll(top); },
       rewardCard: r => showRewardCard(r),
       chip: { set: (text, frac) => { chipOverride = text == null ? null : { text, frac }; paintChip(); } },
       coverFace: () => {
@@ -156,7 +156,9 @@ export async function renderReader(root, id) {
       pop = { el, onClose, anchor };
       return pop;
     }
-    const onDocDownClose = e => { if (pop && !e.target.closest('.popover') && !e.target.closest('.rail, .dock, .pill, .rd-top')) closePop(); };
+    // a tap anywhere outside the popover closes it (a tool button toggles its own popover in its click handler)
+    const onDocDownClose = e => { if (pop && !e.target.closest('.popover') && !e.target.closest('.dbtn, .ibtn, .seg-btn, .pill button, .zoom-pct, .timer-chip')) closePop(); };
+    addEventListener('orientationchange', () => closePop());
     document.addEventListener('pointerdown', onDocDownClose, true);
 
     const swatches = (cur, onPick, names = MARK_NAMES, vars = true) => h('div', { class: 'swatches' }, MARK_COLORS.map((c, i) => h('button', {
@@ -214,7 +216,7 @@ export async function renderReader(root, id) {
     const origHandle = h('button', { class: 'orig-handle glass', type: 'button', 'aria-label': 'Меню чтения', hidden: true }, icon('menu', 20));
     reader.append(origHandle);
     let handleT = null;
-    const showHandle = () => { origHandle.classList.add('show'); clearTimeout(handleT); handleT = setTimeout(() => { if (!pop) origHandle.classList.remove('show'); }, 2000); };
+    const showHandle = () => { /* no floating button any more: Оригинал uses the same rails as the other views */ };
     origHandle.addEventListener('click', () => (pop ? closePop() : origSheet()));
     function origSheet() {
       const views = h('div', { class: 'segmented cmf-seg' }, ...doc.views.map(v => h('button', { class: 'seg-btn txt' + (v === mode ? ' on' : ''), type: 'button', onclick: () => { closePop(); switchMode(v); } }, MODES.find(x => x[0] === v)[1])));
@@ -560,6 +562,7 @@ export async function renderReader(root, id) {
     // ---------------- modes ----------------
     switchMode = async (m, force = false) => {
       if (m === mode && !force) return;
+      closePop();
       const prev = mode; mode = m;
       modeBtns.forEach(b => { const on = b.dataset.mode === m; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
       modes.style.setProperty('--i', modeBtns.filter(b => !b.hidden).findIndex(b => b.dataset.mode === m));
@@ -574,7 +577,7 @@ export async function renderReader(root, id) {
         layout(); refreshRead();
         if (mode === m) ST.openFile(meta, m);   // a newer mode switch may have overtaken this one
         paintChip();
-        origHandle.hidden = m !== 'orig'; if (m === 'orig') { showHandle(); if (!(await db.kvGet('hint:orig', false))) { db.kvSet('hint:orig', true); toast('В этом виде работает собственная панель маркера файла', { ms: 6000 }); } }
+        origHandle.hidden = true; if (m === 'orig') { if (!(await db.kvGet('hint:orig', false))) { db.kvSet('hint:orig', true); toast('В этом виде работает собственная панель маркера файла', { ms: 6000 }); } }
         if (!doc.caps().draw && tools.drawing()) tools.set({ tool: 'none' });
         if (m !== 'blocks') chipOverride = null;
       } catch (e) {
