@@ -62,6 +62,8 @@ input[type=range]::-moz-range-track { height: 4px; border-radius: 2px; backgroun
 .modal-stack { display: flex; flex-direction: column; gap: var(--s2); }
 .modal-stack .btn { width: 100%; }
 .menu-back { position: fixed; inset: 0; }
+.menu-back.sheet { background: var(--scrim); }
+.menu-back.sheet .menu { padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); }
 .menu { position: fixed; min-width: 220px; padding: 6px; border-radius: var(--r-m); background: var(--panel-solid); border: 1px solid var(--line); box-shadow: var(--shadow-pop); display: flex; flex-direction: column; animation: rise var(--t-fast) var(--ease); }
 .menu-item { min-height: var(--tap); padding: 0 var(--s4); text-align: left; background: none; border: 0; border-radius: var(--r-s); font-weight: 600; font-size: 14px; }
 .menu-item:active { background: var(--seg-bg); } .menu-item.danger { color: var(--danger); }

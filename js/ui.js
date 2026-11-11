@@ -102,22 +102,39 @@ export function progressDialog(title) {
 }
 
 // Всплывающее меню у кнопки: items = [{label, onClick, danger}]
+// Placement follows the VISUAL viewport (the on-screen keyboard shrinks it): the list always gets a max-height and scrolls, opens below or above
+// whichever side has more room, and on touch screens a long list becomes a bottom sheet above the keyboard (never cut off by the screen edge).
 export function menu(anchor, items) {
   const back = h('div', { class: 'menu-back' });
   const list = h('div', { class: 'menu', role: 'menu' },
     items.map(it => h('button', {
       class: 'menu-item' + (it.danger ? ' danger' : ''), role: 'menuitem',
-      onclick: () => { back.remove(); it.onClick(); },
+      onclick: () => { close(); it.onClick(); },
     }, it.label)));
   back.append(list);
-  back.addEventListener('pointerdown', e => { if (e.target === back) back.remove(); });
+  const vv = window.visualViewport, coarse = matchMedia('(pointer: coarse)').matches;
+  const close = () => { vv?.removeEventListener('resize', place); vv?.removeEventListener('scroll', place); removeEventListener('orientationchange', close); back.remove(); };
+  back.addEventListener('pointerdown', e => { if (e.target === back) close(); });
+  addEventListener('orientationchange', close);
+  function place() {
+    const vt = vv ? vv.offsetTop : 0, vh = vv ? vv.height : innerHeight, vw = vv ? vv.width : innerWidth, vl = vv ? vv.offsetLeft : 0, m = 8;
+    const r = anchor.getBoundingClientRect();
+    list.style.maxHeight = ''; list.style.overflowY = 'auto';
+    if (coarse && items.length > 6) {      // bottom sheet above the keyboard
+      back.classList.add('sheet');
+      Object.assign(list.style, { left: vl + 'px', right: 'auto', width: vw + 'px', top: 'auto', bottom: (innerHeight - (vt + vh)) + 'px', maxHeight: Math.round(Math.min(vh * 0.55, 420)) + 'px', borderRadius: 'var(--r-l) var(--r-l) 0 0' });
+      return;
+    }
+    const need = Math.min(list.scrollHeight, 320);
+    const below = vt + vh - r.bottom - m, above = r.top - vt - m, up = below < need && above > below;
+    const room = Math.max(140, Math.floor(up ? above : below));
+    list.style.maxHeight = room + 'px';
+    const lh = Math.min(list.scrollHeight, room), lw = list.offsetWidth;
+    list.style.left = Math.max(vl + m, Math.min(vl + vw - lw - m, r.right - lw)) + 'px';
+    list.style.top = (up ? Math.max(vt + m, r.top - lh - 4) : Math.min(r.bottom + 4, vt + vh - lh - m)) + 'px';
+  }
   getLayer().append(back);
-  const r = anchor.getBoundingClientRect();
-  const lw = list.offsetWidth, lh = list.offsetHeight;
-  let left = Math.min(window.innerWidth - lw - 8, Math.max(8, r.right - lw));
-  let top = r.bottom + 4;
-  if (top + lh > window.innerHeight - 8) top = Math.max(8, r.top - lh - 4);
-  list.style.left = left + 'px';
-  list.style.top = top + 'px';
-  return () => back.remove();
+  place();
+  vv?.addEventListener('resize', place); vv?.addEventListener('scroll', place);
+  return close;
 }

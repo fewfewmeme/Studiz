@@ -109,7 +109,7 @@ export async function renderPlan(root) {
     const paintSubj = () => { const k = selSubj[date] || null; subjBtn.className = 'pa-subj ' + sjClass(k) + (k ? ' set' : ''); subjBtn.textContent = k ? subjName(k) : 'предмет'; };
     paintSubj();
     subjBtn.addEventListener('pointerdown', e => e.preventDefault());
-    subjBtn.addEventListener('click', () => menu(subjBtn, [{ label: 'Без предмета', onClick: () => { selSubj[date] = null; paintSubj(); input.focus(); } }, ...order.map(k => ({ label: subjName(k), onClick: () => { selSubj[date] = k; paintSubj(); input.focus(); } }))]));
+    subjBtn.addEventListener('click', () => { input.blur(); menu(subjBtn, [{ label: 'Без предмета', onClick: () => { selSubj[date] = null; paintSubj(); input.focus(); } }, ...order.map(k => ({ label: subjName(k), onClick: () => { selSubj[date] = k; paintSubj(); input.focus(); } }))]); });
     const add = async () => { const text = input.value.trim(); if (!text) return; input.value = ''; await P.addItem({ date, subj: selSubj[date] || null, text, fileId: null }); draw({ focus: date }); };
     input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
     const go = h('button', { class: 'plan-go', type: 'button', 'aria-label': 'Добавить' }, icon('check', 16)); go.addEventListener('pointerdown', e => e.preventDefault()); go.addEventListener('click', add);
