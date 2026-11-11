@@ -94,7 +94,7 @@ export async function renderReader(root, id) {
       wake: () => wake(), onSelection: () => updateSel(), onPointer: d => { pointerDown = !!d; if (d) closePop(); },   // a tap inside the document closes any open popover
       onTheme: t => { try { const k = t.bg + '|' + t.accent; if (meta.docTheme?.k !== k) { meta.docTheme = { k, bg: t.bg, ink: t.ink, accent: t.accent }; patchMeta({ docTheme: meta.docTheme }); } document.querySelector('meta[name=theme-color]')?.setAttribute('content', rgbHex(t.bg)); } catch { /* cosmetic */ }
         reader.style.setProperty('--doc-bg', t.bg); reader.style.setProperty('--doc-ink', t.ink); reader.style.setProperty('--doc-accent', t.accent); reader.classList.toggle('doc-dark', !!t.dark); },
-      onFrameScroll: top => { if (pop) closePop(); frameScroll(top); },
+      onFrameScroll: top => { if (pop && performance.now() - (pop.at || 0) > 1400) closePop(); frameScroll(top); },   // reading scroll closes a popover; the scroll that a popover's own action causes (smooth scroll to a block) must not
       rewardCard: r => showRewardCard(r),
       chip: { set: (text, frac) => { chipOverride = text == null ? null : { text, frac }; paintChip(); } },
       coverFace: () => {
@@ -155,7 +155,7 @@ export async function renderReader(root, id) {
       else { left = r.left + r.width / 2 - w / 2; topPos = r.top - hh - 10; if (topPos < 8) topPos = r.bottom + 10; }
       left = clamp(left, 8, innerWidth - w - 8); topPos = clamp(topPos, 8, innerHeight - hh - 8);
       el.style.left = left + 'px'; el.style.top = topPos + 'px';
-      pop = { el, onClose, anchor };
+      pop = { el, onClose, anchor, at: performance.now() };
       return pop;
     }
     // a tap anywhere outside the popover closes it (a tool button toggles its own popover in its click handler)

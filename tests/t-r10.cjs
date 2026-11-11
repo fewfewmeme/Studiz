@@ -14,7 +14,7 @@ async function run(browser) {
   const open = async (name, mode) => {
     const f = (await L.idb(p, 'files')).find(x => x.name === name);
     await p.evaluate(id => { location.hash = '#/file/' + id; }, f.id);
-    await p.waitForSelector('.reader'); await p.waitForFunction(() => window.__reader && window.__reader.doc() && window.__reader.doc().mode, null, { timeout: 30000 });
+    await p.waitForSelector('.reader'); await p.waitForFunction(id => window.__reader && window.__reader.doc() && window.__reader.doc().id === id && window.__reader.doc().mode, f.id, { timeout: 30000 });   // THIS file's reader (the previous one may still be closing)
     if (mode) await L.switchTo(p, mode); else await L.waitFrameReady(p);
   };
   const adv = async ms => { for (let t = 0; t < ms; t += 20000) { await p.clock.fastForward(Math.min(20000, ms - t)); await sleep(30); } await sleep(250); };
@@ -42,7 +42,7 @@ async function run(browser) {
   s = await S(); ok('режим «Блоки»: общего таймера нет', s.runStart == null && !s.paused && s.exam === true, s);
   const blocks = await p.evaluate(() => window.__reader.doc().blocks.list().map(b => b.id));
   const F = () => L.frameOf(p);
-  const startB = async i => { await F().evaluate(id => document.querySelector(`.lz-bf[data-b="${id}"] .st`).click(), blocks[i]); await sleep(300); };
+  const startB = async i => { await F().waitForFunction(id => !!document.querySelector(`.lz-bf[data-b="${id}"] .st`), blocks[i], { timeout: 15000 }); await F().evaluate(id => document.querySelector(`.lz-bf[data-b="${id}"] .st`).click(), blocks[i]); await sleep(300); };   // the cards are drawn asynchronously: wait for them (this was an occasional flake)
   await startB(0);
   ok('«Начать» предлагает 5 или 10 минут', await p.evaluate(() => [...document.querySelectorAll('.bk-tpop .pill-btn')].map(b => b.textContent.trim()).join('|').includes('5 мин|10 мин')));
   await p.evaluate(() => [...document.querySelectorAll('.bk-tpop .pill-btn')].find(b => /^5 мин/.test(b.textContent.trim())).click()); await sleep(300);
