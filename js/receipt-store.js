@@ -47,10 +47,12 @@ export async function tearOff(sx) {
     life.counted = [...life.counted, payload.id].slice(-200);
   }
   const arch = (await db.kvGet(K_ARCHIVE, [])).filter(x => x.id !== payload.id);
-  arch.push({ id: payload.id, ts, payload, code, moved: false, life: { minutes: life.minutes, days: life.days, blocks: life.blocks, fish: life.fish, shrimp: life.shrimp } });
+  // one normal check per day: a second check for a day that is already closed (the other device closed it first) is marked as a «Дополнение»
+  const addendum = arch.some(x => x.payload && daysBetween(x.payload.d1, x.payload.d2).some(k => daysBetween(payload.d1, payload.d2).includes(k)));
+  arch.push({ id: payload.id, ts, payload, code, moved: false, ...(addendum ? { addendum: true } : {}), life: { minutes: life.minutes, days: life.days, blocks: life.blocks, fish: life.fish, shrimp: life.shrimp } });
   await db.kvSet(K_ARCHIVE, arch);
   const days = (await db.kvGet(K_DAYS, [])).filter(x => x.id !== payload.id);
-  const stub = { id: payload.id, ts, d1: payload.d1, d2: payload.d2, minutes: totals.totalMin, fish: payload.f, shrimp: payload.sh, sx: payload.sx };
+  const stub = { ...(addendum ? { addendum: true } : {}), id: payload.id, ts, d1: payload.d1, d2: payload.d2, minutes: totals.totalMin, fish: payload.f, shrimp: payload.sh, sx: payload.sx };
   days.push(stub);
   await db.kvSet(K_DAYS, days);
   await db.kvSet(K_LIFE, life);

@@ -12,7 +12,7 @@ const now = () => Date.now();
 
 export const state = () => S;
 export function subscribe(fn) { subs.add(fn); return () => subs.delete(fn); }
-function emit(kind, extra) { if (kind === 'blockDone' && extra) logBlock({ id: randomId(16), minutes: extra.lenMin, dateKey: dateKey(now()), subj: S.subj, rid: S.rid, ts: now() }); subs.forEach(f => { try { f(kind, extra); } catch { /* a listener must not break the timer */ } }); }
+function emit(kind, extra) { if (kind === 'blockDone' && extra) logBlock({ id: randomId(16), minutes: extra.lenMin, dateKey: dateKey(now()), subj: extra.subj || S.subj, exam: !!extra.exam, rid: S.rid, ts: now() }); subs.forEach(f => { try { f(kind, extra); } catch { /* a listener must not break the timer */ } }); }
 
 // ---- persistence ----
 let lastKv = 0;
@@ -94,12 +94,29 @@ export function addManualMinutes(subjectKey, minutes) {
 }
 // the append-only log of completed blocks (ids make a later merge between devices idempotent); totals on the receipt are still the timer's numbers
 export const EVENTS_KEY = 'study.events.v1';
-async function logBlock(rec) { try { const a = await db.kvGet(EVENTS_KEY, []); (Array.isArray(a) ? a : []).push(rec); await db.kvSet(EVENTS_KEY, (Array.isArray(a) ? a : []).slice(-5000)); } catch { /* ignore */ } }
+let logChain = Promise.resolve();      // writes are queued: two blocks credited in the same tick must both reach the log
+function logBlock(rec) { logChain = logChain.then(async () => { const a = await db.kvGet(EVENTS_KEY, []); const l = Array.isArray(a) ? a : []; l.push(rec); await db.kvSet(EVENTS_KEY, l.slice(-5000)); }).catch(() => {}); return logChain; }
 const dateKey = t => { const d = new Date(t); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 export function creditBlock(lenMin) {
   const before = S.done.b5 + S.done.b10; T.creditBlock(S, lenMin, now());
   if (S.done.b5 + S.done.b10 === before) return false;
   persist(); emit('blockDone', S.lastBlock); emit('change'); return true;
+}
+export const getEvents = async () => { await logChain; const a = await db.kvGet(EVENTS_KEY, []); return Array.isArray(a) ? a.filter(e => e && typeof e.id === 'string') : []; };
+// events from another device: new ids only; an event of a day that already has a CLOSED check goes to a «Дополнение» (returned in `late`), the others join the open receipt
+export async function applyRemoteEvents(list, closedDays) {
+  const have = await getEvents(), ids = new Set(have.map(e => e.id)), out = { added: 0, dup: 0, late: [], minutes: 0, fish: 0, shrimp: 0 };
+  const fresh = [];
+  for (const e of Array.isArray(list) ? list : []) {
+    if (!e || typeof e.id !== 'string' || ids.has(e.id)) { if (e) out.dup++; continue; }
+    if ((e.minutes !== 5 && e.minutes !== 10) || typeof e.dateKey !== 'string' || typeof e.subj !== 'string') continue;
+    if (Math.abs(new Date(e.dateKey + 'T12:00:00').getTime() - (e.ts || 0)) > 36 * 3600000) continue;     // anti-cheat: the day must match when it was created
+    ids.add(e.id); fresh.push(e);
+    out.added++; out.minutes += e.minutes; out.fish += e.minutes === 5 ? 1 : 2; out.shrimp += e.minutes === 10 ? 1 : 0;
+    if (closedDays.has(e.dateKey)) out.late.push(e); else { T.applyEvent(S, e, now()); }
+  }
+  if (fresh.length) { await db.kvSet(EVENTS_KEY, [...have, ...fresh].slice(-5000)); persist(); emit('change'); }
+  return out;
 }
 export function stopBlock() { if (!S.block) return; T.abandonBlock(S); persist(); emit('blockAbandoned', 'stopped'); emit('change'); }
 export const elapsedMs = () => T.elapsedMs(S, now());

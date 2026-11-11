@@ -113,7 +113,7 @@ export function completeBlock(S) {
   const ms = b.lenMin * 60000;
   S.blockBySubjMs[b.subj] = (S.blockBySubjMs[b.subj] || 0) + ms;
   if (b.exam) { S.blockExamMs += ms; if (!S.examSubjs.includes(b.subj)) S.examSubjs.push(b.subj); }
-  S.lastBlock = { lenMin: b.lenMin, fish: b.lenMin === 5 ? 1 : 2, shrimp: b.lenMin === 10 ? 1 : 0 };   // transient, for the reward card
+  S.lastBlock = { subj: b.subj, exam: !!b.exam, lenMin: b.lenMin, fish: b.lenMin === 5 ? 1 : 2, shrimp: b.lenMin === 10 ? 1 : 0 };   // transient, for the reward card
   S.block = null;
   return S;
 }
@@ -124,6 +124,16 @@ export function creditBlock(S, lenMin, t) {
   if (S.dayStart == null) { S.dayStart = t; S.rid = S.rid || randomId(); }
   S.block = { lenMin, startAt: t - lenMin * 60000, endAt: t, subj: S.subj, exam: !!S.exam, beat: t };
   return completeBlock(S);
+}
+// a block completed on ANOTHER device, applied to this device's open receipt (the same numbers our own completeBlock writes)
+export function applyEvent(S, ev, t) {
+  if (!ev || (ev.minutes !== 5 && ev.minutes !== 10) || typeof ev.subj !== 'string') return S;
+  if (S.dayStart == null) { S.dayStart = t; S.rid = S.rid || randomId(); }
+  if (ev.minutes === 5) S.done.b5++; else S.done.b10++;
+  const ms = ev.minutes * 60000;
+  S.blockBySubjMs[ev.subj] = (S.blockBySubjMs[ev.subj] || 0) + ms;
+  if (ev.exam) { S.blockExamMs += ms; if (!S.examSubjs.includes(ev.subj)) S.examSubjs.push(ev.subj); }
+  return S;
 }
 export const blockRemainingMs = (S, t) => (S.block ? Math.max(0, S.block.endAt - t) : 0);
 // reached zero while the page was watched -> credited; returns 'completed' | 'running' | 'none'

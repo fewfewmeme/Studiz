@@ -8,7 +8,7 @@ import { icon } from '../icons.js';
 import { refreshShell } from '../shell.js';
 import { stickerNames, stickerImg, subjectStickerName, setSubjectSticker, wallpaperList, wallpaperChoice, setWallpaperChoice, posterUrl, posterCropUrl } from '../assets.js';
 import { subjectStyle } from './common.js';
-import { toast, progressDialog, confirmDialog } from '../ui.js';
+import { toast, progressDialog, confirmDialog, alertDialog } from '../ui.js';
 import * as lib from '../library.js';
 import * as db from '../db.js';
 import { readapt } from '../importer.js';
@@ -97,6 +97,25 @@ export async function renderSettings(root) {
       h('button', { class: 'btn btn-sm btn-danger-soft', onclick: async () => { if (await confirmDialog(`Удалить «${f.name}» навсегда? Это нельзя отменить.`, { ok: 'Удалить', danger: true })) { await lib.deleteFile(f.id); drawTrash(); } } }, 'Навсегда'))) : [h('p', { class: 'muted' }, 'Корзина пуста. Удалённые документы лежат здесь 30 дней.')]));
   };
   drawTrash();
+  // ----- Синхронизация (вручную, без сервера): код или файл с блоками, чеками и планом; повторный импорт ничего не меняет -----
+  const syncCard = () => {
+    const out = h('textarea', { class: 'input', rows: 3, readonly: true, 'aria-label': 'Код для передачи', style: { display: 'none', fontSize: '12px', wordBreak: 'break-all' } });
+    const inp = h('textarea', { class: 'input', rows: 3, placeholder: 'Вставьте код LIZSYNC1…', 'aria-label': 'Код с другого устройства', style: { fontSize: '12px' } });
+    const file = h('input', { type: 'file', accept: '.json,.txt,application/json', hidden: true });
+    const SY = () => import('../sync.js');
+    const give = async () => { const S = await SY(); const pkg = await S.buildPackage(); const code = await S.toCode(pkg); out.value = code; out.style.display = 'block'; out.focus(); out.select();
+      const blob = new Blob([JSON.stringify(pkg)], { type: 'application/json' }); const name = `konspekty-sync-${new Date().toLocaleDateString('sv-SE')}.json`;
+      const file0 = new File([blob], name, { type: 'application/json' });
+      if (code.length > 6000) { try { if (navigator.canShare?.({ files: [file0] })) { await navigator.share({ files: [file0], title: 'Синхронизация' }); return; } } catch (e) { if (e?.name === 'AbortError') return; } const { downloadBlob } = await import('../util.js'); downloadBlob(blob, name); toast('Данных много — сохранён файл (код слишком длинный)'); }
+      else toast('Код готов — скопируйте его и вставьте на другом устройстве'); };
+    const take = async text => { try { const S = await SY(); const r = await S.mergePackage(await S.fromText(text)); await alertDialog(S.summaryRu(r), { title: 'Синхронизация' }); inp.value = ''; refreshShell?.(); } catch { toast('Не получилось прочитать код или файл', { error: true }); } };
+    file.addEventListener('change', async () => { const f = file.files[0]; file.value = ''; if (f) take(await f.text()); });
+    return card('Синхронизация между устройствами',
+      h('p', { class: 'muted' }, 'iPad и iPhone не связаны сами: передайте данные вручную. Блоки, чеки и план объединятся без повторов, один день — один чек. Если на другом устройстве день уже закрыт, придёт «Дополнение».'),
+      h('div', { class: 'actions' }, h('button', { class: 'btn btn-primary', onclick: give }, icon('share', 18), h('span', null, 'Передать на другое устройство'))), out,
+      h('p', { class: 'eyebrow mt' }, 'Получить с другого устройства'), inp,
+      h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: () => inp.value.trim() ? take(inp.value) : toast('Сначала вставьте код') }, 'Получить по коду'), h('button', { class: 'btn', onclick: () => file.click() }, 'Выбрать файл')), file);
+  };
   const trashCard = () => card('Корзина', trashBox);
   const rebuildCard = () => card('Адаптация документов', h('p', { class: 'muted' }, 'Если сайт научился лучше адаптировать файлы, документы можно пересобрать из оригиналов. Пометки, прогресс и закладки остаются.'),
     h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: async () => {
@@ -120,6 +139,7 @@ export async function renderSettings(root) {
     card('Резервная копия', lastBk,
       h('div', { class: 'actions' }, h('button', { class: 'btn btn-primary', onclick: async () => { await backupFlow(); showLast(); } }, icon('download', 18), h('span', null, 'Сделать копию')), h('button', { class: 'btn', onclick: () => fileIn.click() }, 'Восстановить из копии')),
       h('p', { class: 'muted' }, 'Копия — один ZIP-файл: документы, пометки, прогресс блоков, настройки. Сохраните его в «Файлы» или iCloud Drive.')),
+    syncCard(),
     card('Подсказки', h('p', { class: 'muted' }, 'Три короткие карточки о том, как всё устроено.'), h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: () => import('./tour.js').then(m => m.maybeTour(true)) }, 'Показать подсказки'))),
     card('Новые файлы', h('p', { class: 'muted' }, 'Если делаете конспекты с помощью Claude, отдайте ему правила: тогда файл откроется без потерь — блоки, цвета, вопросы для «Спросят».'), h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: async () => { try { await navigator.clipboard.writeText(FORMAT_RULES); toast('Правила скопированы. Вставьте их в чат.'); } catch { toast('Не получилось скопировать', { error: true }); } } }, icon('copy', 18), h('span', null, 'Скопировать правила для новых файлов')))),
     card('Если читалка ведёт себя странно', h('p', { class: 'muted' }, 'Сбрасывает только вид: масштаб, положение в тексте, ширину и шрифт каждого файла, а также кэш сайта. Файлы, пометки, закладки, чеки и копии не трогаются.'),
