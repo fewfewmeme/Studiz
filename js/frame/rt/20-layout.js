@@ -11,6 +11,7 @@ var BASE_CSS = [
   'body{overflow-wrap:break-word}',
   'img,svg,video,canvas{max-width:100%}img{height:auto}',
   '.lz-own,.lz-own *{box-sizing:border-box}',
+  'body,body *{-webkit-user-select:text;user-select:text}.lz-own,.lz-own *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}',
   '@media print{html{zoom:1!important;padding:0!important}.lz-own,.lz-chrome,.lz-pen{display:none!important}.lzm{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'
 ].join('\n');
 var CHROME_SEL = '.bar,#bar,#tools,#uhl,#lb,#slb,.toolbar,#toolbar,.topbar,#topbar,.navbar,#navbar,.fab,#fab,.sticky-bar,.progress-bar,#progress,.toast,#toast,dialog,.modal,#modal,.lightbox,#lightbox,.overlay,#overlay';

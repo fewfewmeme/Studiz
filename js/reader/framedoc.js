@@ -197,6 +197,7 @@ export class FrameDoc {
   snapshot() { return this.sel.has ? { ...this.sel } : null; }
   applyTextMark(type, props = {}, snap = null) {
     const s = snap || this.sel; if (!s?.has || !s.anchor) return;
+    if (s.anchor.end - s.anchor.start > 2500) { toast('Слишком большой фрагмент — выделите меньше'); this.host?.send('clearSel'); return; }   // never a whole page
     this.store.add({ type, anchor: s.anchor, ...props });
     this.host?.send('clearSel');
   }

@@ -64,9 +64,20 @@ var paintSoon = (function () { var q = 0; return function () { if (q) return; q 
 
 // ---- selection ----
 var lastSelKey = '';
+// Safety net: an accidental giant selection (a select-all, a triple tap, dragged handles over the whole page) never reaches the highlighter.
+// Too long (> 1500 chars) or spanning more than 4 text blocks = rejected and cleared. A selection inside the site's own interface is ignored.
+var SEL_BLOCKS = 'p,li,h1,h2,h3,h4,h5,h6,td,th,figcaption,blockquote,.callout', SEL_MAX_CHARS = 1500, SEL_MAX_BLOCKS = 4;
+function accidentalSelection(s, r) {
+  if (s.toString().length > SEL_MAX_CHARS) return true;
+  var ca = r.commonAncestorContainer, root = ca.nodeType === 1 ? ca : ca.parentElement; if (!root) return false;
+  var list = root.matches && root.matches(SEL_BLOCKS) ? [] : root.querySelectorAll(SEL_BLOCKS), n = 0;
+  for (var i = 0; i < list.length; i++) { if (r.intersectsNode(list[i]) && ++n > SEL_MAX_BLOCKS) return true; }
+  return false;
+}
 function selectionInfo() {
   var s = getSelection(); if (!s || s.rangeCount === 0 || s.isCollapsed) return null;
   var r = s.getRangeAt(0); if (!D.body.contains(r.commonAncestorContainer)) return null;
+  if (accidentalSelection(s, r)) { s.removeAllRanges(); return null; }
   var ce = r.commonAncestorContainer.nodeType === 1 ? r.commonAncestorContainer : r.commonAncestorContainer.parentElement;
   if (ce && ce.closest('.lz-own')) return null;
   var idx = index(), a = rangeToAnchor(idx, r); if (!a) return null;
