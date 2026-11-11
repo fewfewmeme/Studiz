@@ -47,6 +47,7 @@ function boot() {
     reportTheme();
     var sg = VIEW === 'orig' ? (D.querySelector('section.blk') ? segments() : []) : segments();
     post('ready', { words: info.words, title: info.title, blocks: sg.map(function (s) { return { id: s.id, title: s.title, min: Math.round(s.min * 10) / 10, words: s.words, part: s.part }; }), parts: VIEW === 'orig' ? [] : findParts().map(function (p) { return p.title; }), imgs: D.images.length });
+    if (VIEW === 'orig') { try { watchOrigTimer(); } catch (e) { /* ignore */ } }
     if (VIEW === 'scroll') { addEventListener('load', function () { fixTables(); cvApply(); if (CFG.pos) restore(CFG.pos); }, { once: true }); }
   };
   var fr = D.fonts && D.fonts.ready ? Promise.race([D.fonts.ready, new Promise(function (r) { setTimeout(r, 900); })]) : Promise.resolve();
@@ -64,6 +65,35 @@ function origClick(e) {
   var all = [].slice.call(D.querySelectorAll('section.blk')).filter(function (s) { return !s.parentElement.closest('section.blk'); });
   var i = all.indexOf(sec.parentElement.closest('section.blk') || sec); if (i < 0) return;
   post('origblock', { kind: kind, bi: i, title: sec.getAttribute('data-lab') || '' });
+}
+// «Оригинал»: an OLD file with its own countdown («05:00», a «Старт»/«Пауза» button, chips «по 5» / «по 10», «+5») is translated into the site's block
+// events, so the site never shows a second timer: complete = the file's display reached 00:00 while it was running.
+// New files emit window.parent.postMessage({ type: 'studiz:block-start|pause|complete|cancel', minutes, blockId }) themselves (see README).
+function watchOrigTimer() {
+  var DISP = /^\d{1,2}:\d{2}$/, disp = null, bar = null, st = { running: false, sec: -1, max: 0, started: false };
+  var secOf = function (e) { var m = e.textContent.trim().split(':'); return (+m[0]) * 60 + (+m[1]); };
+  var isBar = function (e) { var t = ''; e.querySelectorAll('button').forEach(function (b) { t += ' ' + b.textContent; }); return /Старт|Пауза/i.test(t) && /по\s*5|по\s*10/i.test(e.textContent); };
+  function find() {
+    var els = D.querySelectorAll('div,span,b,strong,p,output,time'), n = 0;
+    for (var i = 0; i < els.length && n < 6000; i++, n++) {
+      var e = els[i]; if (e.children.length || !DISP.test(e.textContent.trim())) continue;
+      for (var up = e.parentElement, k = 0; up && k < 5; up = up.parentElement, k++) if (isBar(up)) { disp = e; bar = up; return true; }
+    }
+    return false;
+  }
+  function look() {
+    if (!disp) return;
+    var sec = secOf(disp), btns = [].slice.call(bar.querySelectorAll('button')), running = btns.some(function (b) { return /Пауза/i.test(b.textContent); });
+    if (running && !st.running) { st.started = true; st.max = sec; post('origtimer', { ev: 'start', minutes: sec >= 420 ? 10 : 5 }); }
+    else if (!running && st.running && sec > 0) post('origtimer', { ev: 'pause' });
+    if (running) st.max = Math.max(st.max, sec);
+    if (st.started && st.sec > 0 && sec === 0 && st.running) { st.started = false; post('origtimer', { ev: 'complete', minutes: st.max >= 420 ? 10 : 5 }); }
+    else if (st.started && sec > st.sec + 1 && !running && st.sec >= 0) { st.started = false; post('origtimer', { ev: 'cancel' }); }   // reset before 00:00
+    st.running = running; st.sec = sec;
+  }
+  if (!find()) return;
+  var mo = new MutationObserver(look); mo.observe(bar, { subtree: true, childList: true, characterData: true, attributes: true });
+  setInterval(look, 1000); look();
 }
 function restore(pos) {
   if (VIEW === 'orig') { if (pos.top != null) (D.scrollingElement || R).scrollTop = pos.top; return; }

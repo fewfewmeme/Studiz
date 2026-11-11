@@ -21,37 +21,25 @@ async function run(browser) {
   const kv = key => p.evaluate(async k => (await import('./js/db.js')).kvGet(k, null), key);
   const near = (a, b, tol = 3000) => Math.abs(a - b) <= tol;
 
-  // ---- auto start ----
+  // ---- no passive timer ----
   await open('02-plain-splanchnology', 'normal');
   let s = await S();
-  ok('открыл файл: общий таймер пошёл сам', s.runStart != null && s.subj === 'an' && s.dayStart != null && /^[a-z0-9]{10}$/.test(s.rid), s);
+  ok('открыл файл: общего таймера нет (runStart пуст), файл и чек запомнены', s.runStart == null && s.subj === 'an' && s.dayStart != null && /^[a-z0-9]{10}$/.test(s.rid), s);
   await adv(10 * MIN);
-  ok('через 10 минут на часах ~10 (по меткам времени)', near(await elapsed(), 10 * MIN), await elapsed());
-  ok('чип показывает минуты', /^10\s*мин/.test(await p.evaluate(() => document.querySelector('.timer-chip').textContent.trim())));
-  // ---- tap = pause ----
-  await p.click('.timer-chip');
-  s = await S(); ok('касание паузит: paused, pausedBy=user, runStart=null', s.paused && s.pausedBy === 'user' && s.runStart == null, s);
-  ok('на паузе чип приглушён', await p.evaluate(() => document.querySelector('.timer-chip').classList.contains('paused')));
-  await adv(5 * MIN); ok('за время паузы счёт не идёт', near(await elapsed(), 10 * MIN), await elapsed());
-  await p.click('.timer-chip'); await adv(2 * MIN);
-  ok('повторное касание: продолжается с того же значения (~12 мин)', near(await elapsed(), 12 * MIN), await elapsed());
-  // ---- hidden = auto pause, stays paused ----
+  ok('через 10 минут чтения время не набежало (минуты только за блоки)', (await elapsed()) === 0, await elapsed());
+  ok('в панели нет счётчика минут — только «Блок»', /^Блок$/.test(await p.evaluate(() => document.querySelector('.timer-chip').textContent.trim())));
   await p.evaluate(() => { Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' }); document.dispatchEvent(new Event('visibilitychange')); });
   await adv(3 * MIN);
   await p.evaluate(() => { Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'visible' }); document.dispatchEvent(new Event('visibilitychange')); });
-  s = await S(); ok('страница скрыта: пауза auto, и после возврата она остаётся', s.paused && s.pausedBy === 'auto' && s.runStart == null && near(await elapsed(), 12 * MIN), s);
-  ok('мягкая подсказка «Таймер на паузе — нажми…»', await p.evaluate(() => { const h = document.querySelector('.timer-hint'); return !!h && !h.hidden && /на паузе/.test(h.textContent); }));
-  await p.click('.timer-hint'); await sleep(200); s = await S(); ok('касание подсказки продолжает', !s.paused && s.runStart != null, s);
+  s = await S(); ok('страница скрыта и возвращена: ничего не на паузе, подсказки «Таймер на паузе» нет', !s.paused && !(await p.evaluate(() => { const h = document.querySelector('.timer-hint'); return !!h && !h.hidden; })), s);
   // ---- exam flag ----
   await p.click('.exam-btn'); await sleep(300);
-  s = await S(); ok('кнопка «Экзамен» в читалке: файл и таймер помечены', s.exam === true && (await L.idb(p, 'files')).find(f => f.name === '02-plain-splanchnology').exam === true, s.exam);
-  await adv(10 * MIN); s = await S();
-  const tot = await p.evaluate(async () => { const m = await import('./js/study-store.js'); return m.totals(); });
-  ok('время в экзаменационном файле считается и в «к экзамену» (≈10 мин)', tot.ex >= 9 && tot.ex <= 11, tot);
+  s = await S(); ok('кнопка «Экзамен» в читалке: файл и чек помечены', s.exam === true && (await L.idb(p, 'files')).find(f => f.name === '02-plain-splanchnology').exam === true, s.exam);
   ok('на кнопке и в карточке есть отметка', await p.evaluate(() => document.querySelector('.exam-btn').classList.contains('on')));
   // ---- blocks ----
   await open('01-app-pathanat', 'blocks');
-  s = await S(); ok('режим «Блоки»: общий таймер остановился сам (не «поставлен мной»)', s.runStart == null && !s.paused, s);
+  await p.click('.exam-btn'); await sleep(200);   // blocks of this file count «к экзамену»
+  s = await S(); ok('режим «Блоки»: общего таймера нет', s.runStart == null && !s.paused && s.exam === true, s);
   const blocks = await p.evaluate(() => window.__reader.doc().blocks.list().map(b => b.id));
   const F = () => L.frameOf(p);
   const startB = async i => { await F().evaluate(id => document.querySelector(`.lz-bf[data-b="${id}"] .st`).click(), blocks[i]); await sleep(300); };
@@ -77,7 +65,8 @@ async function run(browser) {
   // abandoned: left to reading
   await startB(1); await p.evaluate(() => [...document.querySelectorAll('.bk-tpop .pill-btn')].find(b => /^10 мин/.test(b.textContent.trim())).click()); await sleep(200);
   await L.switchTo(p, 'normal'); s = await S();
-  ok('выход из блоков в чтение прерывает блок: ничего не засчитано, общий таймер идёт дальше', s.block == null && s.done.b10 === b10 && s.runStart != null, s);
+  ok('смена вида (Блоки → Обычный) НЕ прерывает блок: он идёт дальше', s.block != null, s.block);
+  await p.evaluate(async () => { const m = await import('./js/study-store.js'); m.stopBlock(); }); await sleep(200);
   // abandoned: away > 15 s
   await L.switchTo(p, 'blocks'); await startB(1); await p.evaluate(() => [...document.querySelectorAll('.bk-tpop .pill-btn')].find(b => /^10 мин/.test(b.textContent.trim())).click()); await sleep(200);
   await p.evaluate(() => { Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' }); document.dispatchEvent(new Event('visibilitychange')); });

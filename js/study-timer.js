@@ -39,11 +39,11 @@ export function flush(S, t) {
 // mode: 'normal' | 'book' | 'blocks' | 'orig'. Opening any file starts the timer; it keeps running across files and is only reset by tearing the receipt.
 export function openFile(S, subj, exam, mode, t) {
   flush(S, t);
-  if (S.block && mode !== 'blocks') abandonBlock(S);          // left the block for ordinary reading: nothing is credited
+  // NO passive reading timer any more: time, fish and shrimp come only from completed blocks (and minutes added by hand).
+  // A running block keeps running when the reading view changes (Обычный / Книга / Блоки / Оригинал); it ends on leaveFile / 15 s away / Стоп.
   S.subj = subj || null; S.exam = !!exam;
+  S.runStart = null; S.paused = false; S.pausedBy = null;
   if (S.dayStart == null) { S.dayStart = t; S.rid = S.rid || randomId(); }
-  if (mode === 'blocks') S.runStart = null;                    // the general timer stops while blocks are done
-  else if (!S.paused) S.runStart = S.runStart ?? t;
   return S;
 }
 
@@ -116,6 +116,14 @@ export function completeBlock(S) {
   S.lastBlock = { lenMin: b.lenMin, fish: b.lenMin === 5 ? 1 : 2, shrimp: b.lenMin === 10 ? 1 : 0 };   // transient, for the reward card
   S.block = null;
   return S;
+}
+// a block finished inside a file's OWN timer (Оригинал): the same credit as our own countdown reaching zero
+export function creditBlock(S, lenMin, t) {
+  if (lenMin !== 5 && lenMin !== 10) return S;
+  if (!S.subj) return S;
+  if (S.dayStart == null) { S.dayStart = t; S.rid = S.rid || randomId(); }
+  S.block = { lenMin, startAt: t - lenMin * 60000, endAt: t, subj: S.subj, exam: !!S.exam, beat: t };
+  return completeBlock(S);
 }
 export const blockRemainingMs = (S, t) => (S.block ? Math.max(0, S.block.endAt - t) : 0);
 // reached zero while the page was watched -> credited; returns 'completed' | 'running' | 'none'

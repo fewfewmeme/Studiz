@@ -13,14 +13,14 @@ function blocksCss() {
     '.lz-bh,.lz-bf,.lz-plan{font:500 calc(var(--u)*14)/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;color:var(--lz-ink);letter-spacing:0;text-align:left;text-transform:none;-webkit-text-size-adjust:none}' +
     '.lz-bh{display:flex;align-items:center;gap:calc(var(--u)*12);margin:calc(var(--u)*26) 0 calc(var(--u)*10);padding:calc(var(--u)*10) calc(var(--u)*12) calc(var(--u)*10) calc(var(--u)*14);border-radius:calc(var(--u)*16);background:var(--lz-bg2);border:calc(var(--u)*1) solid var(--lz-line);min-height:calc(var(--u)*56)}' +
     '.lz-bn{flex:none;width:calc(var(--u)*32);height:calc(var(--u)*32);border-radius:50%;background:var(--lz-ink);color:var(--lz-bg);display:grid;place-items:center;font-weight:700;font-size:calc(var(--u)*14)}' +
-    '.lz-bt{flex:1;min-width:0}.lz-bt b{display:block;font-weight:700;font-size:calc(var(--u)*15);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lz-bt small{display:block;opacity:.75;font-size:calc(var(--u)*12.5);margin-top:calc(var(--u)*1)}' +
+    '.lz-bt{flex:1;min-width:0}.lz-bt b{display:block;font-weight:700;font-size:calc(var(--u)*15);white-space:normal;overflow-wrap:anywhere}.lz-bt small{display:block;opacity:.75;font-size:calc(var(--u)*12.5);margin-top:calc(var(--u)*1)}' +
     '.lz-ib{flex:none;width:calc(var(--u)*44);height:calc(var(--u)*44);border-radius:calc(var(--u)*12);border:0;background:transparent;color:var(--lz-ink);cursor:pointer;display:grid;place-items:center;font-size:calc(var(--u)*20);opacity:.7}.lz-ib.on{opacity:1;background:var(--lz-ink);color:var(--lz-bg)}' +
     '.lz-bf{display:flex;flex-wrap:wrap;gap:calc(var(--u)*8);margin:calc(var(--u)*12) 0 calc(var(--u)*26);padding:calc(var(--u)*10);border-radius:calc(var(--u)*16);background:var(--lz-bg2);border:calc(var(--u)*1) solid var(--lz-line)}' +
     '.lz-btn{min-height:calc(var(--u)*44);padding:0 calc(var(--u)*16);border-radius:calc(var(--u)*12);border:calc(var(--u)*1) solid var(--lz-line);background:var(--lz-bg);color:var(--lz-ink);font:700 calc(var(--u)*14)/1 -apple-system,system-ui,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:calc(var(--u)*8)}' +
     '.lz-btn.pri{background:var(--lz-ink);color:var(--lz-bg);border-color:transparent}.lz-btn.on{background:var(--lz-ink);color:var(--lz-bg);border-color:transparent}.lz-btn:disabled{opacity:.55}' +
     '.lz-plan{margin:0 0 calc(var(--u)*22);padding:calc(var(--u)*16) calc(var(--u)*18);border-radius:calc(var(--u)*18);background:var(--lz-bg2);border:calc(var(--u)*1) solid var(--lz-line)}.lz-plan h3{margin:0 0 calc(var(--u)*4);font-weight:700;font-size:calc(var(--u)*20);line-height:1.25;font-family:inherit;color:var(--lz-ink);letter-spacing:0}.lz-plan p{margin:0 0 calc(var(--u)*12);opacity:.8}' +
     '.lz-chips{display:flex;flex-wrap:wrap;gap:calc(var(--u)*8)}.lz-chip{min-height:calc(var(--u)*44);padding:0 calc(var(--u)*16);border-radius:calc(var(--u)*22);border:calc(var(--u)*1) solid var(--lz-line);background:var(--lz-bg);color:var(--lz-ink);font:700 calc(var(--u)*14) -apple-system,system-ui,sans-serif;cursor:pointer}.lz-chip.on{background:var(--lz-ink);color:var(--lz-bg);border-color:transparent}' +
-    '.lz-done{opacity:.62}.lz-dim{opacity:.38}.lz-active{outline:calc(var(--u)*2) solid var(--lz-ink);outline-offset:calc(var(--u)*6);border-radius:calc(var(--u)*6)}.lz-hide{display:none!important}' +
+    '.lz-done{opacity:1}.lz-dim{opacity:1}.lz-active{outline:calc(var(--u)*2) solid var(--lz-ink);outline-offset:calc(var(--u)*6);border-radius:calc(var(--u)*6)}.lz-hide{display:none!important}' +
     '.lz-blur{filter:blur(calc(var(--u)*7));-webkit-user-select:none;user-select:none;cursor:pointer;transition:filter .2s}' +
     '.lz-spacer{flex:1}.lz-btn.quiet{background:transparent;border-color:transparent;opacity:.8;font-weight:600}.lz-rest{margin:0 0 calc(var(--u)*18);padding:calc(var(--u)*14) calc(var(--u)*16);border-radius:calc(var(--u)*16);background:var(--lz-bg2);border:calc(var(--u)*1) solid var(--lz-line);font:600 calc(var(--u)*15) -apple-system,system-ui,sans-serif;color:var(--lz-ink)}');
 }
@@ -137,7 +137,7 @@ function applyBlockState() {
   var segs = segments(), left = 0, mins = 0;
   segs.forEach(function (s, i) {
     var b = BL.els[s.id]; if (!b) return;
-    var done = !!st.done[s.id], show = !only || key[s.id] || st.flame[s.id], act = st.active === s.id, dim = !!st.active && st.dim && !act;
+    var done = !!st.done[s.id], show = !only || key[s.id] || st.flame[s.id], act = st.active === s.id, dim = false;   // other blocks are NEVER dimmed
     if (show && !done) { left++; mins += s.min; }
     s.leaves.concat([b.head, b.foot]).forEach(function (e) { e.classList.toggle('lz-hide', !show); e.classList.toggle('lz-done', done); e.classList.toggle('lz-dim', dim); });
     b.head.classList.toggle('lz-active', false);
@@ -146,7 +146,7 @@ function applyBlockState() {
     var rd = b.foot.querySelector('.rd'); rd.classList.toggle('on', done); rd.setAttribute('aria-pressed', String(done)); rd.textContent = done ? '✓ Прочитано' : '✓ Прочитала';
     var sb = b.foot.querySelector('.st'); sb.textContent = act ? '● Идёт' : '▶ Начать'; sb.disabled = act;
     b.foot.querySelector('.ak').textContent = st.qn[s.id] != null ? 'Спросят · ' + st.qn[s.id] : 'Спросят';
-    b.head.style.outline = act ? '2px solid var(--lz-ink)' : '';
+    b.head.style.outline = ''; b.head.style.boxShadow = act ? 'inset calc(var(--u)*3) 0 0 0 var(--lz-ink)' : '';   // a subtle accent on the active block only
   });
   if (BL.plan) {
     var plans = st.plans || [];

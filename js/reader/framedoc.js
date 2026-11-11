@@ -165,6 +165,7 @@ export class FrameDoc {
       case 'blocksinfo': this.info.blocks = d.blocks; this.blocks.push(); break;
       case 'toast': toast(d.text); break;
       case 'origblock': this.blocks.onOrigEvent(d); break;
+      case 'origtimer': this.blocks.onOrigTimer(d); break;
       case 'error': console.error('[frame]', d.message); break;
       default: break;
     }

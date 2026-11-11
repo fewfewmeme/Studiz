@@ -7,7 +7,10 @@ export class FrameHost {
     this.iframe = h('iframe', { class: 'lz-frame', title: 'Документ', sandbox: 'allow-scripts allow-modals allow-popups allow-popups-to-escape-sandbox', referrerpolicy: 'no-referrer', tabindex: '0' });
     this._on = e => {
       if (e.source !== this.iframe.contentWindow) return;
-      const d = e.data; if (!d || d.lz !== 1 || d.id !== this.id) return;
+      const d = e.data;
+      // the embedded-timer contract: a конспект emits {type:'studiz:block-start|pause|complete|cancel', blockId, minutes}
+      if (d && typeof d.type === 'string' && d.type.startsWith('studiz:block-')) { this.onMessage?.({ type: 'origtimer', ev: d.type.slice('studiz:block-'.length), minutes: d.minutes, blockId: d.blockId }); return; }
+      if (!d || d.lz !== 1 || d.id !== this.id) return;
       if (d.type === 'ready') { this.ready = true; this._res?.(d); this._res = null; }
       this.onMessage?.(d);
     };

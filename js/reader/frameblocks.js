@@ -54,7 +54,7 @@ export class FrameBlocks {
     const keyIds = list.filter(b => this.isKey(b)).map(b => b.id);
     const bm = {}; list.forEach(b => { if (this.hasBm(b)) bm[b.id] = 1; });
     const active = this.timer.phase === 'study' ? this.timer.blockId : null;
-    this.host.send('blockState', { state: { done: this.st.done, flame: this.st.flame, bm, keyIds, onlyKey: !!plan.onlyKey, plans: BLOCK_PLANS.map(p => ({ id: p.id, label: p.label })), planId: plan.id, planStudy: null, active, dim: !!active, restText: this.restText() } });
+    this.host.send('blockState', { state: { done: this.st.done, flame: this.st.flame, bm, keyIds, onlyKey: !!plan.onlyKey, plans: BLOCK_PLANS.map(p => ({ id: p.id, label: p.label })), planId: plan.id, planStudy: null, active, dim: false, restText: this.restText() } });
   }
   restText() { const t = this.timer; return t.phase === 'rest' ? 'Время отдыха — ' + (t.tip || 'Отдохни') : t.phase === 'ready' ? 'Отдых закончился' : ''; }
   scrollTo(id, smooth = true) { this.host?.send('blockScroll', { id, smooth }); }
@@ -93,9 +93,16 @@ export class FrameBlocks {
   }
   // «Прочитала» only marks the block as read. Minutes, fish and shrimp come from the study timer: general time while reading,
   // and a 5 / 10 minute block ONLY when its countdown reaches zero (stopping, leaving or closing the page earlier credits nothing).
+  // the file's own countdown (heuristic adapter or the studiz:block-* contract): the reward is credited ONCE when it reaches 00:00; the site shows no second timer
+  onOrigTimer(d) {
+    if (d.ev === 'complete') {
+      const n = Date.now(); if (this._lastCredit && n - this._lastCredit < 4000) return; this._lastCredit = n;
+      if (ST.creditBlock(Number(d.minutes) === 10 ? 10 : 5)) toast('Блок засчитан');
+    }
+  }
   async onOrigEvent(d) {
     const b = this.list()[d.bi]; if (!b) return;
-    if (d.kind === 'start') this.start(b, { orig: true });
+    if (d.kind === 'start') { /* the file runs its own timer: nothing to open */ }
     else if (d.kind === 'done' && !this.st.done[b.id]) { this.st.done[b.id] = Date.now(); this.save(); this.push(); }
   }
   refreshRewards() { const r = ST.totals().rewards; if (this.fishEl) { this.fishEl.textContent = String(r.fish); this.shrimpEl.textContent = String(r.shrimp); } }
@@ -161,6 +168,7 @@ export class FrameBlocks {
   // «Начать» on a block: scroll to it and offer the two lengths
   start(b, { orig = false } = {}) {
     this.unlockAudio?.(); this.pending = b;
+    if (ST.state().block) { this.timer = { phase: 'study', blockId: b.id, n: b.n }; this.scrollTo(b.id); this.push(); this.paint(); return; }   // a countdown is running: «Начать» on another block only moves the marker
     if (!orig) this.scrollTo(b.id);
     const chip = this.ctx.chipEl?.(); if (chip) this.openTimerPop(chip);
     this.paint();

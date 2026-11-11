@@ -2,7 +2,7 @@
 // Saved on every state change and every 5 s while something runs. The timer machine itself is js/study-timer.js (pure).
 import * as db from './db.js';
 import * as T from './study-timer.js';
-import { SUBJECT_CODE, rewards, totalsFromTimer } from './receipt-core.js';
+import { SUBJECT_CODE, rewards, totalsFromTimer, randomId } from './receipt-core.js';
 import { addFileMs, flushFileMs } from './plan-store.js';
 
 export const KEY = 'studyTimer.v1';
@@ -12,7 +12,7 @@ const now = () => Date.now();
 
 export const state = () => S;
 export function subscribe(fn) { subs.add(fn); return () => subs.delete(fn); }
-function emit(kind, extra) { subs.forEach(f => { try { f(kind, extra); } catch { /* a listener must not break the timer */ } }); }
+function emit(kind, extra) { if (kind === 'blockDone' && extra) logBlock({ id: randomId(16), minutes: extra.lenMin, dateKey: dateKey(now()), subj: S.subj, rid: S.rid, ts: now() }); subs.forEach(f => { try { f(kind, extra); } catch { /* a listener must not break the timer */ } }); }
 
 // ---- persistence ----
 let lastKv = 0;
@@ -91,6 +91,15 @@ export function addManualMinutes(subjectKey, minutes) {
   const d = T.addManual(S, code, Math.round(minutes) * 60000, now());
   if (d) { persist(); emit('change'); }
   return Math.round(d / 60000);
+}
+// the append-only log of completed blocks (ids make a later merge between devices idempotent); totals on the receipt are still the timer's numbers
+export const EVENTS_KEY = 'study.events.v1';
+async function logBlock(rec) { try { const a = await db.kvGet(EVENTS_KEY, []); (Array.isArray(a) ? a : []).push(rec); await db.kvSet(EVENTS_KEY, (Array.isArray(a) ? a : []).slice(-5000)); } catch { /* ignore */ } }
+const dateKey = t => { const d = new Date(t); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+export function creditBlock(lenMin) {
+  const before = S.done.b5 + S.done.b10; T.creditBlock(S, lenMin, now());
+  if (S.done.b5 + S.done.b10 === before) return false;
+  persist(); emit('blockDone', S.lastBlock); emit('change'); return true;
 }
 export function stopBlock() { if (!S.block) return; T.abandonBlock(S); persist(); emit('blockAbandoned', 'stopped'); emit('change'); }
 export const elapsedMs = () => T.elapsedMs(S, now());
