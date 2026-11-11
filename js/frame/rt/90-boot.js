@@ -4,6 +4,7 @@ var BOOK = null;
 window.__lz = { get book() { return BK; }, get blocks() { return BL; }, segments: function () { return segments(); }, S: S, K: K, anchor: function () { return currentAnchor(); }, unanch: function () { return UNANCH; }, strokes: function () { return STROKES.map(function (st) { var p = strokePoints(st); return p && p[0]; }); }, charBox: function (o) { var b = charBox({ id: 'dbg', o: o, q: index().text.slice(o, o + 20) }); return b && b.range.getBoundingClientRect(); } };
 var zoomSoon = debounce(function () { relayoutAll(); }, 250);
 H.zoom = function (m) { if (m.z === S.zoom && !m.force) return; S.zoom = m.z; if (VIEW === 'book') zoomSoon(); else relayoutAll(); };   // Книга: one repagination per step (debounced)
+H.dark = function (m) { S.dark = !!m.on; applyDark(); };
 H.width = function (m) { S.width = m.w; WRAP_APPLY(); relayoutAll(); };
 H.font = function (m) { if (m.weight) S.weight = m.weight; if (m.family) S.family = m.family; applyWeight(); applyFamily(); relayoutAll(); };
 H.fontcss = function (m) { css('lz-fontcss', m.css || ''); };
@@ -39,6 +40,7 @@ function boot() {
   if (ANNO_ON) { watchSelection(); watchMarkTaps(); watchNoteTap(); MARKS = CFG.marks || []; STROKES = MARKS.filter(function (x) { return x.type === 'pen'; }); }
   var info = { words: words(D.body), title: (D.title || '').trim() };
   var go = function () {
+    S.dark = !!CFG.dark; if (S.dark) applyDark();       // before the book / blocks views read the theme
     if (VIEW === 'book' && typeof setupBook === 'function') { THEME0 = themeNow(); setupBook(); }
     else if (VIEW === 'blocks' && typeof setupBlocks === 'function') setupBlocks();
     else if (VIEW === 'scroll') { fixTables(); cvApply(); }

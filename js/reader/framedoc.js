@@ -89,6 +89,7 @@ export class FrameDoc {
     this.persistCfg();
     if (nat > 0) { const vw = this.stage.clientWidth; this.setZoomPct(ZOOM_STEPS[this.stepIndex(vw / nat * 100)]); }
   }
+  setDark(on) { this.host?.send('dark', { on: !!on }); }
   setWidth(w) { this.cfgState.width = w; this.persistCfg(); this.host?.send('width', { w }); }
   setFont(patch) { Object.assign(this.cfgState, patch); this.persistCfg(); if (patch.family && patch.family !== 'file') this.sendFontCss(); this.host?.send('font', patch); }
   async sendFontCss() { const css = await fontCss(['Manrope', 'PT Serif']); this.host?.send('fontcss', { css }); }
@@ -111,7 +112,7 @@ export class FrameDoc {
     this.mode = mode;
     const view = VIEW[mode];
     const cfg = {
-      id: this.id, view, zoom: this.zoomOf(mode), width: this.cfgState.width, weight: this.cfgState.weight, family: this.cfgState.family,
+      id: this.id, view, dark: !!this.ctx.getSettings?.().docDark, zoom: this.zoomOf(mode), width: this.cfgState.width, weight: this.cfgState.weight, family: this.cfgState.family,
       insets: this.insets(), pace: PACE[this.ctx.getSettings?.().pace] || 1, edits: this.edits, state: this.docState, marks: this.store.all(), palette: MARK_COLORS, dpr: devicePixelRatio || 1,
       pos: mode === 'orig' ? { top: pos.top || 0 } : (pos.anchor || null),
       title: this.meta.name, subject: this.meta.subject, perf: /perf=1/.test(location.hash + location.search),

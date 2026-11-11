@@ -55,6 +55,7 @@ export async function renderReader(root, id) {
   const readBtn = h('button', { class: 'ibtn rd-read', type: 'button', 'aria-label': 'Прочитала', title: 'Прочитала', 'aria-pressed': 'false', hidden: true }, icon('check', 20));
   const examBtn = h('button', { class: 'ibtn exam-btn', type: 'button', 'aria-label': 'Экзамен', title: 'Файл к экзамену: время считается отдельно', 'aria-pressed': String(!!meta.exam) }, icon('star', 20));
   const timerHint = h('div', { class: 'timer-hint', role: 'status', hidden: true }, 'Таймер на паузе — нажми, чтобы продолжить');
+  const darkBtn = h('button', { class: 'ibtn dark-btn', type: 'button', 'aria-label': 'Тёмный фон документа', title: 'Тёмный фон документа', 'aria-pressed': 'false' }, icon('moon', 20));
   const focusBtn = h('button', { class: 'ibtn', type: 'button', 'aria-label': 'Режим фокуса', title: 'Режим фокуса', 'aria-pressed': 'false' }, icon('focus', 20));
   const examBadge = h('span', { class: 'exam-badge', hidden: !meta.exam }, 'Экзамен');
   const title = h('div', { class: 'rd-title' }, h('strong', { title: meta.name }, meta.name), h('small', null, subjectName(meta.subject), examBadge));
@@ -210,6 +211,7 @@ export async function renderReader(root, id) {
       const zr = h('div', { class: 'cmf-row' }, h('span', { class: 'cmf-l' }, 'Размер текста'), h('div', { class: 'cmf-zoom' }, h('button', { class: 'ibtn sm', type: 'button', 'aria-label': 'Мельче', onclick: () => { doc.zoomStep(-1); upd(); } }, icon('minus', 18)), pct, h('button', { class: 'ibtn sm', type: 'button', 'aria-label': 'Крупнее', onclick: () => { doc.zoomStep(1); upd(); } }, icon('plus', 18)), h('button', { class: 'btn btn-sm btn-quiet', type: 'button', onclick: () => { doc.resetZoom(); upd(); } }, 'Сбросить (75%)')));
       return h('div', { class: 'pop-body cmf' }, h('div', { class: 'pop-title' }, 'Текст'), zr,
         seg('Насыщенность', st.weight || 'file', [['file', 'Как в файле'], ['lighter', 'Светлее']], v => doc.setFont({ weight: v })),
+        doc.setDark ? seg('Фон', settings().docDark ? 'dark' : 'light', [['light', 'Светлый'], ['dark', 'Тёмный']], v => setDarkDoc(v === 'dark')) : null,
         seg('Шрифт', st.family || 'file', [['file', 'Как в файле'], ['sans', 'Без засечек'], ['serif', 'С засечками']], v => doc.setFont({ family: v })),
         mode !== 'book' && mode !== 'orig' ? seg('Ширина', st.width || 'wide', [['narrow', 'Узко'], ['mid', 'Средне'], ['broad', 'Широко'], ['wide', 'Во всю ширину']], v => doc.setWidth(v)) : null,
         close ? h('div', { class: 'pop-actions' }, h('button', { class: 'btn', type: 'button', onclick: close }, 'Готово')) : null);
@@ -239,6 +241,7 @@ export async function renderReader(root, id) {
       if (doc.kind === 'pdf' && doc.hasTrim) rows.push(sw('Обрезать поля', doc.trimOn, async v => { await doc.setTrim(v); await switchMode(mode, true); }, 'Показывать только область с текстом'));
       if (doc.cfgState) rows.push(row('lines', 'Текст: размер, шрифт, ширина', () => setTimeout(() => openPop(anchor, comfortBody(closePop), { side: anchor.closest?.('.rail-r') ? 'left' : 'up' }), 30)));
       if (meta.note) rows.push(row('pen', 'Править текст', () => { location.hash = `#/note/${meta.id}`; }));
+      if (doc.setDark) rows.push(sw('Тёмный фон документа', !!settings().docDark, v => setDarkDoc(v), 'Белая бумага становится чёрной, цвета текста и картинки остаются'));
       rows.push(sw('Экзамен', !!meta.exam, v => toggleExam(v), 'Время в этом файле считается и отдельно «к экзамену»'));
       rows.push(row('bookmark', 'Закладки', () => bookmarksDialog()), row('bookmark', 'Добавить закладку здесь', () => addBookmark()));
       if (unanchored.length) rows.push(row('info', `Не удалось привязать (${unanchored.length})`, () => unanchoredDialog()));
@@ -454,7 +457,7 @@ export async function renderReader(root, id) {
       closePop();
       const blocks = mode === 'blocks';
       if (land) {
-        railL.replaceChildren(backBtn, modes, zoomGroup, listBtn, readBtn, h('span', { class: 'spacer' }), saved, timeEl, examBtn, focusBtn);
+        railL.replaceChildren(backBtn, modes, zoomGroup, listBtn, readBtn, h('span', { class: 'spacer' }), saved, timeEl, examBtn, darkBtn, focusBtn);
         railR.replaceChildren(...toolEls);
         top.replaceChildren(); dockEl.replaceChildren();
       } else {
@@ -532,6 +535,10 @@ export async function renderReader(root, id) {
     }
     timerHint.addEventListener('click', () => { if (ST.state().paused) { ST.togglePause(); paintChip(); } });
     const offST = ST.subscribe(k => { if (k === 'tick' || k === 'change' || k === 'visible' || k === 'hidden') paintChip(); });
+    // dark / light document background: one setting for all documents; the document recolours itself (see frame runtime)
+    const setDarkDoc = v => { setSetting({ docDark: !!v }); if (mode === 'book') switchMode('book', true); else doc.setDark?.(!!v); syncDark(); };
+    const syncDark = () => { const on = !!settings().docDark; darkBtn.classList.toggle('on', on); darkBtn.setAttribute('aria-pressed', String(on)); darkBtn.hidden = !doc?.setDark; };
+    darkBtn.addEventListener('click', () => setDarkDoc(!settings().docDark)); syncDark();
     // exam flag of this file (also in the file card menu)
     const syncExam = () => { examBtn.classList.toggle('on', !!meta.exam); examBtn.setAttribute('aria-pressed', String(!!meta.exam)); examBadge.hidden = !meta.exam; };
     async function toggleExam(v = !meta.exam) { meta.exam = !!v; await patchMeta({ exam: meta.exam }); ST.setExam(meta.exam); syncExam(); toast(meta.exam ? 'Файл отмечен «Экзамен»' : 'Отметка «Экзамен» снята'); }

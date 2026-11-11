@@ -1,7 +1,7 @@
 // Builds the HTML of a sandboxed reading frame: the file's own HTML (never restyled) + a prelude (CSP, storage shim, reader runtime).
 import { DOC_FONTS } from './fonts.js';
 
-const RT = ['10-core', '20-layout', '@anchor', '30-anno', '40-seg', '60-blocks', '70-book', '75-pinch', '90-boot'];
+const RT = ['10-core', '20-layout', '25-dark', '@anchor', '30-anno', '40-seg', '60-blocks', '70-book', '75-pinch', '90-boot'];
 let rtCache = null, shimCache = null;
 async function text(url) { const r = await fetch(url); if (!r.ok) throw new Error('runtime: ' + url); return r.text(); }
 export async function runtimeSource() {

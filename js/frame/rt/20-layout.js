@@ -140,6 +140,11 @@ function lumOf(c) { var m = String(c).match(/[\d.]+/g); if (!m) return 1; var f 
 function opaque(c) { var m = String(c).match(/[\d.]+/g); return m && (m.length < 4 || +m[3] > 0.5); }
 var THEME0 = null;      // book view: the file's colours as they were before the book styles took over
 function themeNow() {
+  var t = themeLight();
+  if (R.classList.contains('lz-dk')) return { bg: 'rgb(13,13,15)', ink: 'rgb(230,232,236)', accent: t.accent, dark: true };     // what the reader frame should match
+  return t;
+}
+function themeLight() {
   if (THEME0) return THEME0;
   var bg = null, e = [D.body, R]; var w = findWrapper(); if (w) e.unshift(w);
   for (var i = 0; i < e.length; i++) { var c = getComputedStyle(e[i]).backgroundColor; if (opaque(c)) { bg = c; break; } }

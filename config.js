@@ -44,6 +44,7 @@ export const DEFAULTS = {
   drawWithFinger: false,    // false: only Apple Pencil / mouse draw, fingers scroll
   theme: 'cyan',
   bookCover: true,
+  docDark: false,            // dark background for documents (the light paper becomes black; colours and pictures are kept)
   wpmMin: 90, wpmMax: 200,
 };
 // Marker colours (same as --mark-1..6 in styles/tokens.css)
