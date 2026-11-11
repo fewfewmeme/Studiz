@@ -70,12 +70,14 @@ export class FrameDoc {
   stepIndex(z) { let bi = 0; ZOOM_STEPS.forEach((s, i) => { if (Math.abs(s - z) < Math.abs(ZOOM_STEPS[bi] - z)) bi = i; }); return bi; }
   get continuous() { return this.meta.layout ? /^pages/.test(this.meta.layout) : this.meta.type === 'image'; }   // page pictures zoom continuously 50–400 %
   setZoomPct(z, mode = this.mode, { fromFrame = false } = {}) {
-    z = clamp(Math.round(z), ZOOM_STEPS[0], this.continuous ? 400 : ZOOM_STEPS[ZOOM_STEPS.length - 1]);
+    z = clamp(Math.round(z * 2) / 2, ZOOM_STEPS[0], this.continuous ? 400 : ZOOM_STEPS[ZOOM_STEPS.length - 1]);
     this.cfgState.zoom[mode] = z; this.persistCfg();
     this.ctx.onZoom?.(z / 100);
     if (!fromFrame) this.host?.send('zoom', { z });
   }
-  zoomStep(dir) { const i = clamp(this.stepIndex(this.zoomOf()) + dir, 0, ZOOM_STEPS.length - 1); this.setZoomPct(ZOOM_STEPS[i]); }
+  get zoomBase() { return ZOOM_DEFAULT / 100; }       // the internal zoom that the UI calls «Текст 100 %»
+  // A- / A+ : the real text size, 70 % .. 200 % in steps of 10 % (the internal CSS zoom is 75 % at «100 %»)
+  zoomStep(dir) { const cur = this.zoomOf() / ZOOM_DEFAULT * 100, next = clamp(dir > 0 ? (Math.floor(cur / 10 + 1e-6) + 1) * 10 : (Math.ceil(cur / 10 - 1e-6) - 1) * 10, 70, 200); this.setZoomPct(next * ZOOM_DEFAULT / 100); }
   zoomBy(f) { this.zoomStep(f > 1 ? 1 : -1); }
   setZoom(z) { this.setZoomPct(this.stepZoom(z)); }
   stepZoom(z) { return ZOOM_STEPS[this.stepIndex(z <= 3 ? z * 100 : z)]; }

@@ -28,8 +28,8 @@ async function run(browser) {
   const mid = await probe();
   await S.cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await P.sleep(900);
   const after = await sc();
-  ok('предпросмотр щипка не больше реально достижимого (200 % / 75 % = 2,67×)', maxScale <= 200 / 75 + 0.01, maxScale);
-  ok('после отпускания масштаб — ближайший шаг (200 %), без «300 %», трансформации не осталось', after.z === 200 && !after.tr, after);
+  ok('щипок — чисто визуальный зум: масштаб растёт, но не больше 5×', maxScale > 1.2 && maxScale <= 5.01, maxScale);
+  ok('после отпускания размер текста НЕ менялся (75), зум остался визуальным (transform держится)', after.z === 75 && /scale\(/.test(after.tr || ''), after);
   ok('в середине документа во время щипка текст не «улетает»: под пальцами тот же абзац (раньше центр масштаба был вверху страницы)', mid.txt === before.txt && Math.abs(mid.cy - before.cy) < 140, [before, mid]);
   // ---- 3. «прочитано»: the end of the file = 100 %, a quick exit does not lose it, reopening does not lower it
   await fr().evaluate(() => { const se = document.scrollingElement || document.documentElement; se.scrollTop = se.scrollHeight; }); await P.sleep(300);

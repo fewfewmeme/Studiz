@@ -46,14 +46,14 @@ async function run(browser) {
   ok('щипок в документе: движение отменено', pr.prevented, pr);
   await sleep(500);
   const z1 = await p.evaluate(() => window.__reader.doc().zoomOf());
-  ok(`щипок ×1.5 увеличивает масштаб до ближайшего шага списка (${z0} → ${z1})`, z1 === 110 && [50, 55, 60, 65, 70, 75, 80, 85, 90, 100, 110, 125, 150, 175, 200].includes(z1), [z0, z1]);
+  ok(`щипок ×1.5 — чисто визуальный: размер текста не изменился (${z0} → ${z1}), документ масштабирован transform`, z1 === z0 && /scale\(/.test(await F().evaluate(() => document.documentElement.style.transform)), [z0, z1]);
   const label = await p.evaluate(() => document.querySelector('.zoom-pct').textContent);
-  ok('подпись масштаба показывает применённое значение', parseInt(label) === z1, label);
+  ok('подпись «Текст N %» показывает размер текста (не щипок)', parseInt(label) === Math.round(z1 / 75 * 100 / 5) * 5, label);
   const s1 = [await fsig(F()), await sig(p)]; await sleep(450); const s2 = [await fsig(F()), await sig(p)]; await sleep(450); const s3 = [await fsig(F()), await sig(p)];
   ok('после отпускания в течение 400+ мс нет новых раскладок и прокруток; рейки не двигаются', JSON.stringify(s1) === JSON.stringify(s2) && JSON.stringify(s2) === JSON.stringify(s3) && !JSON.parse(s1[0]).tr, [s1, s3]);
   const prOut = await F().evaluate(PINCH, { cx: 400, cy: 300, d0: 160, d1: 40, steps: 8 }); await sleep(600);
   const z2 = await p.evaluate(() => window.__reader.doc().zoomOf());
-  ok(`щипок ×0.25 уменьшает до нижней границы списка (${z1} → ${z2})`, z2 === 50, [z1, z2]);
+  ok(`щипок ×0.25 возвращает визуальный зум к 1× (размер текста тот же: ${z1} → ${z2})`, z2 === z1 && !(await F().evaluate(() => document.documentElement.style.transform)), [z1, z2]);
   // book: snaps too, the page frame stays
   await open('02-plain-splanchnology', 'book'); await sleep(500);
   const fr0 = await F().evaluate(() => { const r = document.querySelector('.lz-pg.r').getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; });

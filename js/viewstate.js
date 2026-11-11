@@ -13,8 +13,8 @@ export const ZOOM_MIN = 50, ZOOM_MAX = 400, ZOOM_DEFAULT = 75;
 export function cleanCfg(raw) {
   const o = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
   const zoom = {};
-  if (o.zoom && typeof o.zoom === 'object') for (const k of ['normal', 'book', 'blocks', 'orig']) { const z = num(o.zoom[k], ZOOM_MIN, ZOOM_MAX, null); if (z != null) zoom[k] = Math.round(z); }
-  return { zoom, width: oneOf(o.width, ['wide', 'original'], 'wide'), weight: oneOf(o.weight, ['file', 'lighter'], 'file'), family: oneOf(o.family, ['file', 'sans', 'serif'], 'file') };
+  if (o.zoom && typeof o.zoom === 'object') for (const k of ['normal', 'book', 'blocks', 'orig']) { const z = num(o.zoom[k], ZOOM_MIN, ZOOM_MAX, null); if (z != null) zoom[k] = Math.round(z * 2) / 2; }
+  return { zoom, width: oneOf(o.width, ['wide', 'broad', 'mid', 'narrow', 'original'], 'wide'), weight: oneOf(o.weight, ['file', 'lighter'], 'file'), family: oneOf(o.family, ['file', 'sans', 'serif'], 'file') };
 }
 // reading position: {anchor:{off,quote,blk}, top}
 export function cleanPos(raw) {

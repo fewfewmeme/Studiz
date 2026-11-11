@@ -47,7 +47,9 @@ export async function renderReader(root, id) {
   const listBtn = h('button', { class: 'ibtn rd-list', type: 'button', 'aria-label': 'Список блоков', hidden: true }, icon('list-check', 20));
   const zoomOut = h('button', { class: 'ibtn sm', 'aria-label': 'Мельче', type: 'button' }, icon('minus', 18));
   const zoomIn = h('button', { class: 'ibtn sm', 'aria-label': 'Крупнее', type: 'button' }, icon('plus', 18));
-  const zoomPct = h('button', { class: 'zoom-pct', type: 'button', 'aria-label': 'Сбросить (75%)', title: 'Сбросить (75%)' }, '75%');
+  // «Текст N %»: the one shared text-size number (the file's default size = 100 %); pinch is a separate visual zoom
+  let docBase = 0.75; const tpct = z => Math.round(z / docBase * 100 / 5) * 5;
+  const zoomPct = h('button', { class: 'zoom-pct', type: 'button', 'aria-label': 'Размер текста: сбросить до 100%', title: 'Размер текста: сбросить до 100%' }, '100%');
   const zoomFit = h('button', { class: 'ibtn sm', 'aria-label': 'По ширине', title: 'По ширине', type: 'button' }, icon('fit', 18));
   const zoomGroup = h('div', { class: 'rd-zoom', role: 'group', 'aria-label': 'Масштаб' }, zoomIn, zoomPct, zoomOut, zoomFit);
   const readBtn = h('button', { class: 'ibtn rd-read', type: 'button', 'aria-label': 'Прочитала', title: 'Прочитала', 'aria-pressed': 'false', hidden: true }, icon('check', 20));
@@ -85,7 +87,7 @@ export async function renderReader(root, id) {
       meta, stage, store, tools, root: reader, touch: ping, savePos, progress: progressFn,
       toggleChrome: () => setFocus(!reader.classList.contains('focus')),
       markTap: (ids, rect) => markPopover(ids, rect),
-      onZoom: z => { zoomPct.textContent = Math.round(z * 100) + '%'; },
+      onZoom: z => { zoomPct.textContent = tpct(z) + '%'; },
       onUnanchored: list => { unanchored = list || []; moreBtn?.classList.toggle('badge', unanchored.length > 0); },
       pop: { open: (...a) => openPop(...a), close: () => closePop(), el: () => pop?.el },
       chipEl: () => timeEl, root: reader, switchMode: m => switchMode(m), getSettings: () => settings(),
@@ -126,7 +128,7 @@ export async function renderReader(root, id) {
     try {
       if (meta.type === 'html' || meta.conv) { const mod = await import('./framedoc.js'); doc = new mod.FrameDoc(ctx); }
       else { const mod = await import('./pdfdoc.js'); doc = new mod.PdfDoc(ctx); }
-      await doc.load();
+      await doc.load(); docBase = doc.zoomBase || 1;
       if (doc.views?.includes('orig')) { modeBtns[0].hidden = false; }
       if (doc.noBlocks) modeBtns.find(b => b.dataset.mode === 'blocks').hidden = true;
       modes.style.setProperty('--n', modeBtns.filter(b => !b.hidden).length);
@@ -203,13 +205,13 @@ export async function renderReader(root, id) {
     function comfortBody(close) {
       const st = doc.cfgState || {};
       const seg = (label, cur, opts, fn) => h('div', { class: 'cmf-row' }, h('span', { class: 'cmf-l' }, label), h('div', { class: 'segmented cmf-seg' }, ...opts.map(([v, t]) => h('button', { class: 'seg-btn txt' + (cur === v ? ' on' : ''), type: 'button', 'aria-pressed': String(cur === v), onclick: e => { fn(v); e.currentTarget.parentElement.querySelectorAll('.seg-btn').forEach(b => { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); }); e.currentTarget.classList.add('on'); e.currentTarget.setAttribute('aria-pressed', 'true'); } }, t))));
-      const pct = h('strong', { class: 'cmf-pct' }, Math.round((doc.zoomValue?.() || 0.75) * 100) + '%');
-      const upd = () => { pct.textContent = Math.round(doc.zoomValue() * 100) + '%'; };
+      const pct = h('strong', { class: 'cmf-pct' }, tpct(doc.zoomValue?.() || docBase) + '%');
+      const upd = () => { pct.textContent = tpct(doc.zoomValue()) + '%'; };
       const zr = h('div', { class: 'cmf-row' }, h('span', { class: 'cmf-l' }, 'Размер текста'), h('div', { class: 'cmf-zoom' }, h('button', { class: 'ibtn sm', type: 'button', 'aria-label': 'Мельче', onclick: () => { doc.zoomStep(-1); upd(); } }, icon('minus', 18)), pct, h('button', { class: 'ibtn sm', type: 'button', 'aria-label': 'Крупнее', onclick: () => { doc.zoomStep(1); upd(); } }, icon('plus', 18)), h('button', { class: 'btn btn-sm btn-quiet', type: 'button', onclick: () => { doc.resetZoom(); upd(); } }, 'Сбросить (75%)')));
       return h('div', { class: 'pop-body cmf' }, h('div', { class: 'pop-title' }, 'Текст'), zr,
         seg('Насыщенность', st.weight || 'file', [['file', 'Как в файле'], ['lighter', 'Светлее']], v => doc.setFont({ weight: v })),
         seg('Шрифт', st.family || 'file', [['file', 'Как в файле'], ['sans', 'Без засечек'], ['serif', 'С засечками']], v => doc.setFont({ family: v })),
-        mode !== 'book' && mode !== 'orig' ? seg('Ширина', st.width || 'wide', [['wide', 'На весь экран'], ['original', 'Как в файле']], v => doc.setWidth(v)) : null,
+        mode !== 'book' && mode !== 'orig' ? seg('Ширина', st.width || 'wide', [['narrow', 'Узко'], ['mid', 'Средне'], ['broad', 'Широко'], ['wide', 'Во всю ширину']], v => doc.setWidth(v)) : null,
         close ? h('div', { class: 'pop-actions' }, h('button', { class: 'btn', type: 'button', onclick: close }, 'Готово')) : null);
     }
     // ---------- «Оригинал»: the file fills the screen; one small handle opens a sheet ----------
@@ -233,7 +235,7 @@ export async function renderReader(root, id) {
       const caps = doc.caps();
       if (doc.engine) rows.push(row('list', 'Оглавление и закладки', () => doc.engine.openToc()));
       if (caps.zoom && !reader.classList.contains('land')) rows.push(h('div', { class: 'menu-row static' }, icon('search', 20), h('span', null, 'Масштаб'), h('span', { class: 'spacer' }),
-        h('button', { class: 'ibtn sm', 'aria-label': 'Мельче', onclick: () => doc.zoomBy(0.85) }, icon('minus', 18)), h('span', { class: 'zoom-pct static' }, Math.round((doc.zoomValue?.() || 1) * 100) + '%'), h('button', { class: 'ibtn sm', 'aria-label': 'Крупнее', onclick: () => doc.zoomBy(1.18) }, icon('plus', 18)), h('button', { class: 'ibtn sm', 'aria-label': 'По ширине', onclick: () => { doc.fitWidth(); closePop(); } }, icon('fit', 18))));
+        h('button', { class: 'ibtn sm', 'aria-label': 'Мельче', onclick: () => doc.zoomBy(0.85) }, icon('minus', 18)), h('span', { class: 'zoom-pct static' }, tpct(doc.zoomValue?.() || 1) + '%'), h('button', { class: 'ibtn sm', 'aria-label': 'Крупнее', onclick: () => doc.zoomBy(1.18) }, icon('plus', 18)), h('button', { class: 'ibtn sm', 'aria-label': 'По ширине', onclick: () => { doc.fitWidth(); closePop(); } }, icon('fit', 18))));
       if (doc.kind === 'pdf' && doc.hasTrim) rows.push(sw('Обрезать поля', doc.trimOn, async v => { await doc.setTrim(v); await switchMode(mode, true); }, 'Показывать только область с текстом'));
       if (doc.cfgState) rows.push(row('lines', 'Текст: размер, шрифт, ширина', () => setTimeout(() => openPop(anchor, comfortBody(closePop), { side: anchor.closest?.('.rail-r') ? 'left' : 'up' }), 30)));
       if (meta.note) rows.push(row('pen', 'Править текст', () => { location.hash = `#/note/${meta.id}`; }));

@@ -11,6 +11,7 @@ var BASE_CSS = [
   'body{overflow-wrap:break-word}',
   'img,svg,video,canvas{max-width:100%}img{height:auto}',
   '.lz-own,.lz-own *{box-sizing:border-box}',
+  'html.lz-vz,html.lz-vz body{overflow-x:auto!important}',
   'body,body *{-webkit-user-select:text;user-select:text}.lz-own,.lz-own *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}',
   '@media print{html{zoom:1!important;padding:0!important}.lz-own,.lz-chrome,.lz-pen{display:none!important}.lzm{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'
 ].join('\n');
@@ -67,9 +68,14 @@ function findWrapper() {
   if (!best) { var m = D.querySelector('main, .wrap, .container, article, #app'); if (m && (m.textContent || '').length >= total * 0.6) best = m; }
   WRAP = best || false; return best;
 }
+// width presets: narrow / mid / broad / wide (= full width); «original» keeps the file's own width. Never changed by pinch.
+var WIDTHS = { narrow: '50ch', mid: '66ch', broad: '88ch' };
 function applyWidth() {
-  var w = findWrapper(); if (!w) return;
+  var w = findWrapper() || (VIEW === 'orig' ? null : D.body); if (!w) return;
   w.classList.toggle('lz-wide', S.width === 'wide' && VIEW !== 'orig');
+  if (WIDTHS[S.width] && VIEW !== 'orig' && VIEW !== 'book') { w.style.setProperty('max-width', WIDTHS[S.width], 'important'); w.style.setProperty('margin-left', 'auto', 'important'); w.style.setProperty('margin-right', 'auto', 'important'); w.classList.remove('lz-wide'); }
+  else if (w.dataset.lzw0 !== undefined || w.style.maxWidth) { if (w === D.body || w.hasAttribute('data-lzwset')) { w.style.removeProperty('max-width'); w.style.removeProperty('margin-left'); w.style.removeProperty('margin-right'); } }
+  if (WIDTHS[S.width]) w.setAttribute('data-lzwset', '1');
 }
 
 // zoom: CSS zoom on the root scales the file's own px consistently, exactly like a pinch
